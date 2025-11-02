@@ -1,26 +1,33 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 
 class AuthController extends Controller
 {
-    public function registerForm()
+    public function showLoginForm()
+    {
+        return view('auth.login');
+    }
+
+    public function showRegister()
     {
         return view('register');
     }
 
+   
+
     public function register(Request $request)
     {
         $request->validate([
-            'name' => 'required',
+            'name' => 'required|string|max:255',
             'username' => 'required|unique:users',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6',
-            'role' => 'required',
+            'role' => 'required|in:guru,siswa'
         ]);
 
         User::create([
@@ -31,6 +38,27 @@ class AuthController extends Controller
             'role' => $request->role,
         ]);
 
-        return redirect('/register-face?username=' . $request->username);
+        return redirect('/login')->with('success', 'Registrasi berhasil! Silakan login.');
+    }
+
+    public function login(Request $request)
+    {
+        $credentials = $request->only('username', 'password');
+
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+            return redirect()->intended('/dashboard')->with('success', 'Login Berhasil');
+        }
+
+        return back()->withErrors(['loginError' => 'Username atau password salah.']);
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/login');
     }
 }

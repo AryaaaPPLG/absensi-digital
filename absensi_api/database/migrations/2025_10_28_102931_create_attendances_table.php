@@ -9,10 +9,16 @@ return new class extends Migration {
     {
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
-            $table->string('username');
-            $table->timestamp('time')->useCurrent();
-            $table->string('status')->default('Hadir');
+            $table->unsignedBigInteger('user_id');
+            $table->date('date');
+            $table->time('time_in')->nullable();
+            $table->enum('status', ['hadir','alpha','izin','terlambat'])->default('hadir');
+            $table->string('method')->nullable(); // 'face' or 'qr' etc
+            $table->json('meta')->nullable();
             $table->timestamps();
+
+            $table->unique(['user_id','date']);
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

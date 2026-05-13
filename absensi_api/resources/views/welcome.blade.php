@@ -65,7 +65,7 @@
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 font-sans selection:bg-blue-100 selection:text-blue-600 min-h-screen flex flex-col">
-    
+
     <!-- Navbar -->
     <nav class="fixed top-0 w-full z-50 glass-nav">
         <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
@@ -75,7 +75,7 @@
                 </div>
                 <span class="text-xl font-extrabold tracking-tight text-slate-800">Absensi<span class="text-blue-600">Digital</span></span>
             </div>
-            
+
             <div class="flex items-center space-x-4">
                 @auth
                     <a href="{{ route('dashboard') }}" class="px-6 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-black uppercase tracking-wider shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all hover:-translate-y-0.5">
@@ -91,61 +91,208 @@
         </div>
     </nav>
 
-    <!-- Hero Section -->
+    <!-- Attendance Table Section -->
     <section class="relative pt-40 pb-24 overflow-hidden bg-gradient-soft flex-grow flex items-center">
         <div class="hero-shape w-96 h-96 bg-blue-400 opacity-20 -top-20 -right-20"></div>
         <div class="hero-shape w-96 h-96 bg-indigo-400 opacity-20 -bottom-20 -left-20"></div>
-        
-        <div class="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center w-full">
-            <div class="space-y-8 text-center lg:text-left">
-                <div class="inline-flex items-center px-4 py-2 bg-blue-50 border border-blue-100 rounded-full space-x-2">
+
+        <div class="max-w-7xl mx-auto px-6 w-full">
+            <!-- Header Section -->
+            <div class="mb-12">
+                <div class="inline-flex items-center px-4 py-2 bg-blue-50 border border-blue-100 rounded-full space-x-2 mb-6">
                     <span class="flex h-2 w-2 rounded-full bg-blue-600 animate-pulse"></span>
-                    <span class="text-xs font-black text-blue-600 uppercase tracking-widest">Sistem Absensi Masa Depan</span>
+                    <span class="text-xs font-black text-blue-600 uppercase tracking-widest">Data Kehadiran Real-Time</span>
                 </div>
-                
-                <h1 class="text-5xl lg:text-7xl font-black text-slate-900 leading-[1.1] tracking-tight">
-                    Presensi Cepat dengan <span class="text-gradient">Teknologi RFID</span>
+
+                <h1 class="text-5xl lg:text-6xl font-black text-slate-900 leading-[1.2] tracking-tight mb-4">
+                    Daftar <span class="text-gradient">Kehadiran Siswa</span>
                 </h1>
-                
-                <p class="text-lg text-slate-500 font-medium max-w-xl mx-auto lg:mx-0 leading-relaxed">
-                    Transformasi digital pengelolaan kehadiran tim Anda. Lebih cepat, lebih akurat, dan terintegrasi secara real-time dengan cloud dashboard.
+
+                <p class="text-lg text-slate-500 font-medium max-w-2xl leading-relaxed">
+                    Pantau kehadiran tim Anda secara real-time. Sistem otomatis mencatat setiap absensi melalui teknologi RFID yang akurat dan terintegrasi.
                 </p>
-                
-                <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start space-y-4 sm:space-y-0 sm:space-x-6">
-                    <a href="{{ route('absensi.view') }}" class="w-full sm:w-auto px-10 py-5 bg-blue-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-blue-200 hover:bg-blue-700 transition-all hover:-translate-y-1">
-                        Buka Terminal Absensi
+            </div>
+
+            <!-- Attendance Table Card -->
+            <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
+                <!-- Table Header with Action -->
+                <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                    <h2 class="text-xl font-black text-slate-800 flex items-center space-x-3">
+                        <i class="fas fa-table text-blue-600"></i>
+                        <span>Urutan Kehadiran Hari Ini</span>
+                    </h2>
+                    <a href="{{ route('absensi.view') }}" class="px-6 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-black uppercase tracking-wider shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all hover:-translate-y-0.5">
+                        <i class="fas fa-arrow-right mr-2"></i>Terminal
                     </a>
-                    <div class="flex -space-x-3">
-                        <img src="https://ui-avatars.com/api/?name=User+1&background=random" class="w-12 h-12 rounded-full border-4 border-white">
-                        <img src="https://ui-avatars.com/api/?name=User+2&background=random" class="w-12 h-12 rounded-full border-4 border-white">
-                        <img src="https://ui-avatars.com/api/?name=User+3&background=random" class="w-12 h-12 rounded-full border-4 border-white">
-                        <div class="w-12 h-12 rounded-full bg-blue-50 border-4 border-white flex items-center justify-center">
-                            <span class="text-xs font-bold text-blue-600">+1k</span>
+                </div>
+
+                <!-- Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b border-slate-100 bg-slate-50">
+                                <th class="px-8 py-4 text-left text-xs font-black text-slate-600 uppercase tracking-widest">No</th>
+                                <th class="px-8 py-4 text-left text-xs font-black text-slate-600 uppercase tracking-widest">Nama Siswa</th>
+                                <th class="px-8 py-4 text-left text-xs font-black text-slate-600 uppercase tracking-widest">Tanggal</th>
+                                <th class="px-8 py-4 text-left text-xs font-black text-slate-600 uppercase tracking-widest">Waktu Masuk</th>
+                                <th class="px-8 py-4 text-left text-xs font-black text-slate-600 uppercase tracking-widest">Status</th>
+                                <th class="px-8 py-4 text-left text-xs font-black text-slate-600 uppercase tracking-widest">Metode</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <!-- Data 1 -->
+                            <tr class="hover:bg-slate-50 transition-colors">
+                                <td class="px-8 py-5 text-sm font-bold text-slate-900">1</td>
+                                <td class="px-8 py-5">
+                                    <div class="flex items-center space-x-3">
+                                        <img src="https://ui-avatars.com/api/?name=Budi+Santoso&background=3b82f6&color=fff" class="w-10 h-10 rounded-full">
+                                        <div>
+                                            <p class="text-sm font-bold text-slate-900">Budi Santoso</p>
+                                            <p class="text-xs text-slate-500">ID: #001</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-8 py-5 text-sm text-slate-600 font-medium">13 Mei 2026</td>
+                                <td class="px-8 py-5 text-sm text-slate-600 font-medium">08:15</td>
+                                <td class="px-8 py-5">
+                                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">
+                                        <i class="fas fa-check-circle mr-2"></i> Hadir
+                                    </span>
+                                </td>
+                                <td class="px-8 py-5">
+                                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-blue-100 text-blue-700">
+                                        <i class="fas fa-id-card mr-2"></i> RFID
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <!-- Data 2 -->
+                            <tr class="hover:bg-slate-50 transition-colors">
+                                <td class="px-8 py-5 text-sm font-bold text-slate-900">2</td>
+                                <td class="px-8 py-5">
+                                    <div class="flex items-center space-x-3">
+                                        <img src="https://ui-avatars.com/api/?name=Siti+Nurhaliza&background=3b82f6&color=fff" class="w-10 h-10 rounded-full">
+                                        <div>
+                                            <p class="text-sm font-bold text-slate-900">Siti Nurhaliza</p>
+                                            <p class="text-xs text-slate-500">ID: #002</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-8 py-5 text-sm text-slate-600 font-medium">13 Mei 2026</td>
+                                <td class="px-8 py-5 text-sm text-slate-600 font-medium">08:32</td>
+                                <td class="px-8 py-5">
+                                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700">
+                                        <i class="fas fa-clock mr-2"></i> Terlambat
+                                    </span>
+                                </td>
+                                <td class="px-8 py-5">
+                                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-purple-100 text-purple-700">
+                                        <i class="fas fa-face-smile mr-2"></i> Face
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <!-- Data 3 -->
+                            <tr class="hover:bg-slate-50 transition-colors">
+                                <td class="px-8 py-5 text-sm font-bold text-slate-900">3</td>
+                                <td class="px-8 py-5">
+                                    <div class="flex items-center space-x-3">
+                                        <img src="https://ui-avatars.com/api/?name=Ahmad+Hidayat&background=3b82f6&color=fff" class="w-10 h-10 rounded-full">
+                                        <div>
+                                            <p class="text-sm font-bold text-slate-900">Ahmad Hidayat</p>
+                                            <p class="text-xs text-slate-500">ID: #003</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-8 py-5 text-sm text-slate-600 font-medium">13 Mei 2026</td>
+                                <td class="px-8 py-5 text-sm text-slate-600 font-medium">-</td>
+                                <td class="px-8 py-5">
+                                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-red-100 text-red-700">
+                                        <i class="fas fa-times-circle mr-2"></i> Alpha
+                                    </span>
+                                </td>
+                                <td class="px-8 py-5">
+                                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700">
+                                        <i class="fas fa-minus-circle mr-2"></i> -
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <!-- Data 4 -->
+                            <tr class="hover:bg-slate-50 transition-colors">
+                                <td class="px-8 py-5 text-sm font-bold text-slate-900">4</td>
+                                <td class="px-8 py-5">
+                                    <div class="flex items-center space-x-3">
+                                        <img src="https://ui-avatars.com/api/?name=Rina+Wijaya&background=3b82f6&color=fff" class="w-10 h-10 rounded-full">
+                                        <div>
+                                            <p class="text-sm font-bold text-slate-900">Rina Wijaya</p>
+                                            <p class="text-xs text-slate-500">ID: #004</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-8 py-5 text-sm text-slate-600 font-medium">13 Mei 2026</td>
+                                <td class="px-8 py-5 text-sm text-slate-600 font-medium">07:45</td>
+                                <td class="px-8 py-5">
+                                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-cyan-100 text-cyan-700">
+                                        <i class="fas fa-file-alt mr-2"></i> Izin
+                                    </span>
+                                </td>
+                                <td class="px-8 py-5">
+                                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-pink-100 text-pink-700">
+                                        <i class="fas fa-qrcode mr-2"></i> QR Code
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Table Footer -->
+                <div class="px-8 py-6 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
+                    <p class="text-sm text-slate-600 font-medium">
+                        <span class="font-bold text-slate-900">4</span> Data kehadiran ditampilkan dari total Siswa
+                    </p>
+                    <div class="flex items-center space-x-3">
+                        <button class="px-4 py-2 text-sm font-bold text-slate-600 hover:bg-white rounded-lg transition-colors">← Sebelumnya</button>
+                        <div class="flex items-center space-x-1">
+                            <button class="w-8 h-8 rounded-lg bg-blue-600 text-white font-bold text-sm">1</button>
+                            <button class="w-8 h-8 rounded-lg text-slate-600 hover:bg-white font-bold text-sm">2</button>
+                            <button class="w-8 h-8 rounded-lg text-slate-600 hover:bg-white font-bold text-sm">3</button>
                         </div>
+                        <button class="px-4 py-2 text-sm font-bold text-slate-600 hover:bg-white rounded-lg transition-colors">Selanjutnya →</button>
                     </div>
                 </div>
             </div>
-            
-            <div class="relative hidden lg:block">
-                <div class="relative z-10 animate-float">
-                    <div class="bg-white p-8 rounded-[3rem] shadow-2xl border border-slate-100 max-w-md mx-auto relative overflow-hidden">
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-bl-[3rem] -z-10"></div>
-                        <div class="flex items-center justify-between mb-8">
-                            <div class="space-y-1">
-                                <h3 class="font-black text-slate-800 uppercase tracking-widest text-xs">Informasi Kartu</h3>
-                                <p class="text-2xl font-black text-blue-600">ID: 102938475</p>
-                            </div>
-                            <i class="fas fa-wifi text-3xl text-blue-100 rotate-90"></i>
-                        </div>
-                        <div class="aspect-square bg-slate-50 rounded-3xl mb-8 flex items-center justify-center border-2 border-dashed border-slate-200">
-                            <i class="fas fa-id-card text-8xl text-slate-200"></i>
-                        </div>
-                        <div class="space-y-4">
-                            <div class="h-4 bg-slate-100 rounded-full w-full"></div>
-                            <div class="h-4 bg-slate-100 rounded-full w-3/4"></div>
-                            <button class="w-full py-4 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest">Scan RFID Card</button>
-                        </div>
+
+            <!-- Info Stats Row -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
+                <div class="bg-white rounded-2xl p-6 border border-slate-100 text-center hover:shadow-lg transition-shadow">
+                    <div class="inline-flex items-center justify-center w-12 h-12 bg-emerald-100 rounded-xl mb-4">
+                        <i class="fas fa-check-circle text-emerald-600 text-xl"></i>
                     </div>
+                    <p class="text-sm text-slate-600 font-medium mb-1">Hadir</p>
+                    <p class="text-3xl font-black text-slate-900">1</p>
+                </div>
+                <div class="bg-white rounded-2xl p-6 border border-slate-100 text-center hover:shadow-lg transition-shadow">
+                    <div class="inline-flex items-center justify-center w-12 h-12 bg-amber-100 rounded-xl mb-4">
+                        <i class="fas fa-clock text-amber-600 text-xl"></i>
+                    </div>
+                    <p class="text-sm text-slate-600 font-medium mb-1">Terlambat</p>
+                    <p class="text-3xl font-black text-slate-900">1</p>
+                </div>
+                <div class="bg-white rounded-2xl p-6 border border-slate-100 text-center hover:shadow-lg transition-shadow">
+                    <div class="inline-flex items-center justify-center w-12 h-12 bg-cyan-100 rounded-xl mb-4">
+                        <i class="fas fa-file-alt text-cyan-600 text-xl"></i>
+                    </div>
+                    <p class="text-sm text-slate-600 font-medium mb-1">Izin</p>
+                    <p class="text-3xl font-black text-slate-900">1</p>
+                </div>
+                <div class="bg-white rounded-2xl p-6 border border-slate-100 text-center hover:shadow-lg transition-shadow">
+                    <div class="inline-flex items-center justify-center w-12 h-12 bg-red-100 rounded-xl mb-4">
+                        <i class="fas fa-times-circle text-red-600 text-xl"></i>
+                    </div>
+                    <p class="text-sm text-slate-600 font-medium mb-1">Alpha</p>
+                    <p class="text-3xl font-black text-slate-900">1</p>
                 </div>
             </div>
         </div>

@@ -32,7 +32,6 @@
             </div>
         </div>
     </nav>
-...
 
     <main class="max-w-7xl mx-auto px-6 py-10">
         @if(session('success'))
@@ -53,6 +52,8 @@
                     <thead>
                         <tr class="text-left text-slate-400 text-xs font-bold uppercase tracking-widest border-b border-slate-50">
                             <th class="py-6 px-8">Nama Siswa</th>
+                            <th class="py-6 px-8">Kelas</th>
+                            <th class="py-6 px-8">Jurusan</th>
                             <th class="py-6 px-8">Jam Masuk</th>
                             <th class="py-6 px-8">Status</th>
                             <th class="py-6 px-8 text-right">Aksi</th>
@@ -68,6 +69,12 @@
                                     </div>
                                     <span class="text-sm font-bold text-slate-700">{{ $item->name }}</span>
                                 </div>
+                            </td>
+                            <td class="py-5 px-8">
+                                <span class="text-sm font-semibold text-slate-600">{{ $item->kelas ?? '-' }}</span>
+                            </td>
+                            <td class="py-5 px-8">
+                                <span class="text-sm font-semibold text-slate-600">{{ $item->jurusan ?? '-' }}</span>
                             </td>
                             <td class="py-5 px-8">
                                 <span class="text-sm font-semibold {{ $item->time_in == '-' ? 'text-slate-300' : 'text-slate-600' }}">
@@ -103,7 +110,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="4" class="py-20 text-center">
+                            <td colspan="6" class="py-20 text-center">
                                 <div class="flex flex-col items-center">
                                     <i class="fas fa-user-slash text-4xl text-slate-200 mb-4"></i>
                                     <p class="text-slate-400 font-medium">Tidak ada data siswa ditemukan.</p>

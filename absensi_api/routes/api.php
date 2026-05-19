@@ -6,3 +6,4 @@ use App\Http\Controllers\AttendanceController;
 
 Route::post('/attendance/scan', [RfidController::class, 'scan']);
 Route::post('/attendance/qr', [AttendanceController::class, 'qrAttendance']);
+Route::get('/attendance/realtime', [AttendanceController::class, 'getRealtimeStats']);

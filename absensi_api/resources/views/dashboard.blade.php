@@ -15,6 +15,11 @@
         .card-gradient-purple { background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%); }
         .stat-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .stat-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+        .row-new { animation: pulse-blue 2s ease-out; }
+        @keyframes pulse-blue {
+            0% { background-color: rgba(59, 130, 246, 0.1); }
+            100% { background-color: transparent; }
+        }
     </style>
 </head>
 <body class="min-h-screen">
@@ -32,6 +37,15 @@
             </div>
             
             <div class="flex items-center space-x-6">
+                <!-- Clock Widget -->
+                <div class="hidden lg:flex items-center px-4 py-2 bg-slate-100 rounded-2xl border border-slate-200 mr-2">
+                    <i class="fas fa-clock text-blue-500 mr-3"></i>
+                    <div class="text-right">
+                        <p id="realtimeClock" class="text-sm font-black text-slate-800 leading-none"></p>
+                        <p id="realtimeDate" class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1"></p>
+                    </div>
+                </div>
+
                 <div class="hidden md:flex flex-col items-end mr-2">
                     <span class="text-sm font-bold text-slate-700">{{ $user->name }}</span>
                     <span class="text-[10px] font-bold text-blue-500 uppercase">{{ $user->role }}</span>
@@ -87,7 +101,7 @@
                         <i class="fas fa-calendar-check text-xl"></i>
                     </div>
                     <span class="text-slate-500 font-semibold text-sm">Hadir Hari Ini</span>
-                    <span class="text-4xl font-black text-slate-800 mt-1">{{ $stats['attendance_today'] }}</span>
+                    <span class="text-4xl font-black text-slate-800 mt-1" id="dashHadirToday">{{ $stats['attendance_today'] }}</span>
                     <div class="mt-4 flex items-center text-[11px] font-bold text-emerald-500 uppercase tracking-wider">
                         <i class="fas fa-arrow-up mr-1"></i> Update Realtime
                     </div>
@@ -97,10 +111,10 @@
                     <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mb-4">
                         <i class="fas fa-clock text-xl"></i>
                     </div>
-                    <span class="text-slate-500 font-semibold text-sm">Rata-rata Masuk</span>
-                    <span class="text-4xl font-black text-slate-800 mt-1">07:15</span>
+                    <span class="text-slate-500 font-semibold text-sm">Terlambat</span>
+                    <span class="text-4xl font-black text-slate-800 mt-1" id="dashTerlambatToday">{{ $stats['terlambat_today'] }}</span>
                     <div class="mt-4 flex items-center text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                        Zona Waktu WIB
+                        Update Otomatis
                     </div>
                 </div>
 
@@ -132,7 +146,7 @@
                                     <th class="pb-4 pl-4 text-right">Metode</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-slate-50">
+                            <tbody class="divide-y divide-slate-50" id="dashActivityBody">
                                 @forelse($stats['recent_attendances'] as $att)
                                 <tr>
                                     <td class="py-4 pr-4">
@@ -155,7 +169,7 @@
                                         </span>
                                     </td>
                                     <td class="py-4 pl-4 text-right">
-                                        <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">RFID</span>
+                                        <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">{{ strtoupper($att->method ?? 'RFID') }}</span>
                                     </td>
                                 </tr>
                                 @empty
@@ -217,6 +231,73 @@
                     </div>
                 </div>
             </div>
+
+            <script>
+                const dashActivityBody = document.getElementById('dashActivityBody');
+                const dashHadirToday = document.getElementById('dashHadirToday');
+                const dashTerlambatToday = document.getElementById('dashTerlambatToday');
+                let lastKnownIds = [];
+
+                async function updateDashboardRealtime() {
+                    try {
+                        const response = await fetch('/api/attendance/realtime');
+                        const data = await response.json();
+
+                        if (data.success) {
+                            dashHadirToday.textContent = data.stats.hadir;
+                            dashTerlambatToday.textContent = data.stats.terlambat;
+                            
+                            const currentIds = data.recent.map(item => item.id);
+                            const newIds = currentIds.filter(id => !lastKnownIds.includes(id));
+                            
+                            if (newIds.length > 0) {
+                                renderDashboardTable(data.recent, newIds);
+                            }
+                            lastKnownIds = currentIds;
+                        }
+                    } catch (e) { console.error(e); }
+                }
+
+                function renderDashboardTable(recent, newIds) {
+                    if (recent.length === 0) return;
+                    
+                    let html = '';
+                    recent.forEach(item => {
+                        const isNew = newIds.includes(item.id);
+                        html += `
+                            <tr class="${isNew ? 'row-new' : ''}">
+                                <td class="py-4 pr-4">
+                                    <div class="flex items-center">
+                                        <div class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold text-xs mr-3">
+                                            ${item.user_name.charAt(0)}
+                                        </div>
+                                        <div class="flex flex-col">
+                                            <span class="text-sm font-bold text-slate-700 leading-tight">${item.user_name}</span>
+                                            <span class="text-[10px] text-slate-400 font-semibold uppercase">SISWA</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-4 px-4">
+                                    <span class="text-sm font-semibold text-slate-600">${item.time_in}</span>
+                                </td>
+                                <td class="py-4 px-4">
+                                    <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${item.status === 'hadir' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}">
+                                        ${item.status}
+                                    </span>
+                                </td>
+                                <td class="py-4 pl-4 text-right">
+                                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">${item.method}</span>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    dashActivityBody.innerHTML = html;
+                }
+
+                // Initial load
+                lastKnownIds = @json($stats['recent_attendances']->pluck('id'));
+                setInterval(updateDashboardRealtime, 5000);
+            </script>
 
         @else
             <!-- USER DASHBOARD (GURU/SISWA) -->
@@ -317,11 +398,11 @@
                                     </div>
                                     <div>
                                         <p class="text-sm font-bold text-slate-700">Masuk pada pukul {{ $h->time_in }}</p>
-                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Metode: RFID Card Scan</p>
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Metode: {{ strtoupper($h->method ?? 'RFID') }}</p>
                                     </div>
                                 </div>
-                                <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-600">
-                                    HADIR
+                                <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider {{ $h->status === 'hadir' ? 'bg-emerald-100 text-emerald-600' : 'bg-red-100 text-red-600' }}">
+                                    {{ strtoupper($h->status) }}
                                 </span>
                             </div>
                             @empty
@@ -338,7 +419,35 @@
     </main>
 
     <footer class="text-center py-10">
-        <p class="text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">&copy; 2026 Powered by RFID Tech</p>
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">&copy; 2026 Powered by RPL SMEMSA</p>
     </footer>
+
+    <script>
+        const realtimeClock = document.getElementById('realtimeClock');
+        const realtimeDate = document.getElementById('realtimeDate');
+
+        function updateClock() {
+            const now = new Date();
+            const timeOptions = { 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit',
+                hour12: false,
+                timeZone: 'Asia/Jakarta'
+            };
+            const dateOptions = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                timeZone: 'Asia/Jakarta'
+            };
+            if (realtimeClock) realtimeClock.textContent = now.toLocaleTimeString('id-ID', timeOptions) + ' WIB';
+            if (realtimeDate) realtimeDate.textContent = now.toLocaleDateString('id-ID', dateOptions);
+        }
+        
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
 </body>
 </html>

@@ -38,9 +38,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 });
 
-Route::middleware(['auth'])->group(function () {
-    Route::get('/absensi', [AttendanceController::class, 'showAbsensi'])->name('absensi.view');
-});
+Route::get('/absensi', [AttendanceController::class, 'showAbsensi'])->name('absensi.view');
 
 Route::get('/register', [RegisterController::class, 'showForm'])->name('register');
 Route::post('/register', [RegisterController::class, 'register'])->name('register.post');

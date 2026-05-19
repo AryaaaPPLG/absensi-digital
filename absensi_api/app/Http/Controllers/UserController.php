@@ -31,6 +31,8 @@ class UserController extends Controller
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6',
             'role' => 'required|in:admin,guru,siswa',
+            'kelas' => 'nullable|string',
+            'jurusan' => 'nullable|string',
         ]);
 
         User::create([
@@ -39,6 +41,8 @@ class UserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
+            'kelas' => $request->kelas,
+            'jurusan' => $request->jurusan,
         ]);
 
         return back()->with('success', 'Pengguna berhasil ditambahkan.');
@@ -54,9 +58,11 @@ class UserController extends Controller
             'name' => 'required',
             'role' => 'required|in:admin,guru,siswa',
             'rfid_uid' => 'nullable|unique:users,rfid_uid,' . $user->id,
+            'kelas' => 'nullable|string',
+            'jurusan' => 'nullable|string',
         ]);
 
-        $user->update($request->only(['name', 'role', 'rfid_uid']));
+        $user->update($request->only(['name', 'role', 'rfid_uid', 'kelas', 'jurusan']));
 
         if ($request->password) {
             $user->update(['password' => Hash::make($request->password)]);

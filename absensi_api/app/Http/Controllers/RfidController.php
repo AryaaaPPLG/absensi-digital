@@ -64,6 +64,8 @@ class RfidController extends Controller
                 'success' => false,
                 'message' => 'You have already recorded your attendance today.',
                 'user' => $user->name,
+                'kelas' => $user->kelas,
+                'jurusan' => $user->jurusan,
                 'time' => $attendance->time_in
             ], 400);
         }
@@ -81,6 +83,8 @@ class RfidController extends Controller
             'success' => true,
             'message' => 'Attendance recorded successfully!',
             'user' => $user->name,
+            'kelas' => $user->kelas,
+            'jurusan' => $user->jurusan,
             'time' => $attendance->time_in
         ]);
     }

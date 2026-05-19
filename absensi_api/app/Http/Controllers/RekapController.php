@@ -28,6 +28,8 @@ class RekapController extends Controller
             return (object) [
                 'user_id' => $user->id,
                 'name' => $user->name,
+                'kelas' => $user->kelas,
+                'jurusan' => $user->jurusan,
                 'status' => $att ? $att->status : 'alpha',
                 'time_in' => $att ? $att->time_in : '-',
                 'date' => $date
@@ -99,13 +101,15 @@ class RekapController extends Controller
 
         $callback = function() use($siswa, $attendances, $date) {
             $file = fopen('php://output', 'w');
-            fputcsv($file, ['No', 'Nama', 'Tanggal', 'Jam Masuk', 'Status']);
+            fputcsv($file, ['No', 'Nama', 'Kelas', 'Jurusan', 'Tanggal', 'Jam Masuk', 'Status']);
 
             foreach ($siswa as $index => $user) {
                 $att = $attendances->get($user->id);
                 fputcsv($file, [
                     $index + 1,
                     $user->name,
+                    $user->kelas,
+                    $user->jurusan,
                     $date,
                     $att ? $att->time_in : '-',
                     $att ? strtoupper($att->status) : 'ALPHA'

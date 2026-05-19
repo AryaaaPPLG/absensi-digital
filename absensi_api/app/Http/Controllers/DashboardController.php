@@ -21,9 +21,10 @@ class DashboardController extends Controller
                 'total_guru' => User::where('role', 'guru')->count(),
                 'total_siswa' => User::where('role', 'siswa')->count(),
                 'attendance_today' => Attendance::whereDate('date', Carbon::today())->count(),
+                'terlambat_today' => Attendance::whereDate('date', Carbon::today())->where('status', 'terlambat')->count(),
                 'recent_attendances' => Attendance::with('user')
                     ->latest()
-                    ->take(5)
+                    ->take(10)
                     ->get()
             ];
 

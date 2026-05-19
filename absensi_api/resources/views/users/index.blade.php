@@ -45,6 +45,7 @@
                     <thead>
                         <tr class="text-left text-slate-400 text-xs font-bold uppercase tracking-widest border-b border-slate-50">
                             <th class="py-6 px-8">Nama</th>
+                            <th class="py-6 px-8">Kelas / Jurusan</th>
                             <th class="py-6 px-8">Username / Email</th>
                             <th class="py-6 px-8">Role</th>
                             <th class="py-6 px-8">RFID UID</th>
@@ -60,6 +61,12 @@
                                         {{ substr($user->name, 0, 1) }}
                                     </div>
                                     <span class="text-sm font-bold text-slate-700">{{ $user->name }}</span>
+                                </div>
+                            </td>
+                            <td class="py-5 px-8">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-semibold text-slate-600">{{ $user->kelas ?? '-' }}</span>
+                                    <span class="text-[10px] text-slate-400 font-bold uppercase">{{ $user->jurusan ?? '-' }}</span>
                                 </div>
                             </td>
                             <td class="py-5 px-8">
@@ -112,11 +119,21 @@
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <form action="{{ route('users.store') }}" method="POST" class="p-8 space-y-4">
+            <form action="{{ route('users.store') }}" method="POST" class="p-8 space-y-4 max-h-[70vh] overflow-y-auto">
                 @csrf
                 <div>
                     <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-2">Nama Lengkap</label>
                     <input type="text" name="name" required class="w-full bg-slate-50 border-none rounded-2xl px-5 py-3 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-2">Kelas</label>
+                        <input type="text" name="kelas" class="w-full bg-slate-50 border-none rounded-2xl px-5 py-3 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-blue-500" placeholder="Contoh: XII">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-2">Jurusan</label>
+                        <input type="text" name="jurusan" class="w-full bg-slate-50 border-none rounded-2xl px-5 py-3 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-blue-500" placeholder="Contoh: RPL">
+                    </div>
                 </div>
                 <div>
                     <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-2">Username</label>
@@ -154,12 +171,22 @@
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <form id="editForm" method="POST" class="p-8 space-y-4">
+            <form id="editForm" method="POST" class="p-8 space-y-4 max-h-[70vh] overflow-y-auto">
                 @csrf
                 @method('PUT')
                 <div>
                     <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-2">Nama Lengkap</label>
                     <input type="text" name="name" id="editName" required class="w-full bg-slate-50 border-none rounded-2xl px-5 py-3 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-2">Kelas</label>
+                        <input type="text" name="kelas" id="editKelas" class="w-full bg-slate-50 border-none rounded-2xl px-5 py-3 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-blue-500" placeholder="Contoh: XII">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-2">Jurusan</label>
+                        <input type="text" name="jurusan" id="editJurusan" class="w-full bg-slate-50 border-none rounded-2xl px-5 py-3 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-blue-500" placeholder="Contoh: RPL">
+                    </div>
                 </div>
                 <div>
                     <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-2">RFID UID</label>
@@ -189,6 +216,8 @@
     function editUser(user) {
         document.getElementById('editForm').action = '/users/' + user.id;
         document.getElementById('editName').value = user.name;
+        document.getElementById('editKelas').value = user.kelas || '';
+        document.getElementById('editJurusan').value = user.jurusan || '';
         document.getElementById('editRole').value = user.role;
         document.getElementById('editRfid').value = user.rfid_uid || '';
         document.getElementById('editModal').classList.remove('hidden');

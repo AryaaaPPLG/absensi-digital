@@ -19,46 +19,107 @@
       70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
       100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
     }
+    .activity-row { animation: slide-in 0.5s ease-out; }
+    @keyframes slide-in {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
   </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-center p-4">
+<body class="min-h-screen p-4 flex flex-col items-center">
   
-  <div class="text-center mb-10">
-    <h1 class="text-4xl font-black mb-2 tracking-tight">SISTEM ABSENSI <span class="text-blue-500">RFID</span></h1>
-    <p class="text-slate-400 text-lg">Silakan tempelkan kartu RFID Anda pada reader</p>
-  </div>
-
-  <div class="w-full max-w-lg">
-    <!-- Scanner Visualizer -->
-    <div id="scannerArea" class="scan-container rounded-3xl p-12 flex flex-col items-center justify-center mb-8 relative overflow-hidden">
-      <div class="bg-blue-600/20 p-8 rounded-full mb-6 pulse">
-        <i class="fas fa-id-card text-7xl text-blue-500"></i>
-      </div>
-      <p id="instructionText" class="text-xl font-medium text-slate-300">Menunggu kartu...</p>
-      
-      <!-- Hidden input for RFID reader (acts like a keyboard) -->
-      <input type="text" id="rfidInput" class="absolute opacity-0 pointer-events-none" autofocus>
+  <div class="w-full max-w-6xl">
+    <div class="text-center mb-10 mt-8">
+      <h1 class="text-4xl font-black mb-2 tracking-tight">SISTEM ABSENSI <span class="text-blue-500">RFID</span></h1>
+      <p class="text-slate-400 text-lg">Silakan tempelkan kartu RFID Anda pada reader</p>
+      <div id="realtimeClock" class="text-2xl font-mono font-bold text-blue-400 mt-4 bg-slate-800/50 inline-block px-6 py-2 rounded-2xl border border-slate-700"></div>
     </div>
 
-    <!-- Status Result -->
-    <div id="statusCard" class="status-card bg-slate-800 rounded-2xl p-6 border-l-8 shadow-2xl">
-      <div class="flex items-center">
-        <div id="statusIcon" class="mr-5 text-4xl"></div>
-        <div>
-          <h2 id="statusTitle" class="text-2xl font-bold"></h2>
-          <p id="statusMessage" class="text-slate-400 mt-1"></p>
-          <div id="userDetails" class="mt-3 flex items-center text-sm">
-            <span class="bg-slate-700 px-3 py-1 rounded-full text-blue-400 font-semibold mr-2" id="userName"></span>
-            <span class="text-slate-500" id="scanTime"></span>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+      <!-- Left Column: Scanner -->
+      <div class="space-y-6">
+        <!-- Scanner Visualizer -->
+        <div id="scannerArea" class="scan-container rounded-3xl p-12 flex flex-col items-center justify-center relative overflow-hidden bg-slate-800/50">
+          <div class="bg-blue-600/20 p-8 rounded-full mb-6 pulse">
+            <i class="fas fa-id-card text-7xl text-blue-500"></i>
           </div>
+          <p id="instructionText" class="text-xl font-medium text-slate-300">Menunggu kartu...</p>
+          
+          <!-- Hidden input for RFID reader (acts like a keyboard) -->
+          <input type="text" id="rfidInput" class="absolute opacity-0 pointer-events-none" autofocus>
+        </div>
+
+        <!-- Status Result -->
+        <div id="statusCard" class="status-card bg-slate-800 rounded-2xl p-6 border-l-8 shadow-2xl">
+          <div class="flex items-center">
+            <div id="statusIcon" class="mr-5 text-4xl"></div>
+            <div>
+              <h2 id="statusTitle" class="text-2xl font-bold"></h2>
+              <p id="statusMessage" class="text-slate-400 mt-1"></p>
+              <div id="userDetails" class="mt-3 flex flex-wrap items-center text-sm gap-2">
+                <span class="bg-slate-700 px-3 py-1 rounded-full text-blue-400 font-semibold" id="userName"></span>
+                <span class="bg-blue-600/20 px-3 py-1 rounded-full text-blue-300 font-bold" id="userKelasJurusan"></span>
+                <span class="text-slate-500" id="scanTime"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-slate-500 flex items-center justify-center pt-4">
+          <div class="w-3 h-3 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+          Sistem Aktif - Siap Menerima Scan
+        </div>
+      </div>
+
+      <!-- Right Column: Activity Table -->
+      <div class="bg-slate-800 rounded-3xl overflow-hidden shadow-xl border border-slate-700">
+        <div class="p-6 border-b border-slate-700 flex justify-between items-center">
+          <h3 class="text-xl font-bold">Aktivitas Terbaru</h3>
+          <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Hari Ini</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full" id="activityTable">
+            <thead>
+              <tr class="text-left text-slate-500 text-xs font-bold uppercase tracking-widest bg-slate-900/50">
+                <th class="py-4 px-6">Nama</th>
+                <th class="py-4 px-6">Kelas/Jurusan</th>
+                <th class="py-4 px-6">Waktu</th>
+                <th class="py-4 px-6 text-right">Status</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-700" id="activityBody">
+              @forelse($recentAttendances as $att)
+              <tr class="activity-row">
+                <td class="py-4 px-6">
+                  <div class="flex items-center">
+                    <div class="w-8 h-8 rounded-full bg-blue-600/20 flex items-center justify-center text-blue-400 font-bold text-xs mr-3">
+                      {{ substr($att->user->name, 0, 1) }}
+                    </div>
+                    <span class="font-semibold text-slate-200">{{ $att->user->name }}</span>
+                  </div>
+                </td>
+                <td class="py-4 px-6 text-slate-300 text-sm font-medium">
+                  {{ $att->user->kelas }} / {{ $att->user->jurusan }}
+                </td>
+                <td class="py-4 px-6 text-slate-400 text-sm">
+                  {{ $att->time_in }}
+                </td>
+                <td class="py-4 px-6 text-right">
+                  <span class="px-2 py-1 rounded-md text-[10px] font-bold uppercase {{ $att->status === 'hadir' ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500' }}">
+                    {{ $att->status }}
+                  </span>
+                </td>
+              </tr>
+              @empty
+              <tr id="emptyState">
+                <td colspan="4" class="py-10 text-center text-slate-500 italic">Belum ada aktivitas hari ini</td>
+              </tr>
+              @endforelse
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
-  </div>
-
-  <div class="mt-12 text-slate-500 flex items-center">
-    <div class="w-3 h-3 bg-green-500 rounded-full mr-2 animate-pulse"></div>
-    Sistem Aktif - Siap Menerima Scan
   </div>
 
   <script>
@@ -69,8 +130,30 @@
     const statusMessage = document.getElementById('statusMessage');
     const statusIcon = document.getElementById('statusIcon');
     const userName = document.getElementById('userName');
+    const userKelasJurusan = document.getElementById('userKelasJurusan');
     const scanTime = document.getElementById('scanTime');
     const instructionText = document.getElementById('instructionText');
+    const activityBody = document.getElementById('activityBody');
+    const emptyState = document.getElementById('emptyState');
+    const realtimeClock = document.getElementById('realtimeClock');
+
+    function updateClock() {
+      const now = new Date();
+      const options = { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit',
+        timeZone: 'Asia/Jakarta'
+      };
+      realtimeClock.textContent = now.toLocaleDateString('id-ID', options);
+    }
+    
+    setInterval(updateClock, 1000);
+    updateClock();
 
     // Keep focus on hidden input
     document.addEventListener('click', () => rfidInput.focus());
@@ -108,6 +191,7 @@
 
         if (response.ok) {
           showStatus('success', data);
+          addActivityRow(data);
         } else {
           showStatus('error', data);
         }
@@ -131,8 +215,9 @@
         statusTitle.className = 'text-2xl font-bold text-green-400';
         statusMessage.textContent = data.message;
         userName.textContent = data.user;
+        userKelasJurusan.textContent = (data.kelas || '-') + ' / ' + (data.jurusan || '-');
         scanTime.textContent = data.time;
-        userName.parentElement.style.display = 'flex';
+        document.getElementById('userDetails').style.display = 'flex';
       } else {
         const isWarning = data.message.includes('sudah');
         statusCard.classList.add('show', isWarning ? 'border-yellow-500' : 'border-red-500');
@@ -145,10 +230,11 @@
         
         if (data.user) {
           userName.textContent = data.user;
+          userKelasJurusan.textContent = (data.kelas || '-') + ' / ' + (data.jurusan || '-');
           scanTime.textContent = data.time || '';
-          userName.parentElement.style.display = 'flex';
+          document.getElementById('userDetails').style.display = 'flex';
         } else {
-          userName.parentElement.style.display = 'none';
+          document.getElementById('userDetails').style.display = 'none';
         }
       }
 
@@ -156,6 +242,43 @@
       setTimeout(() => {
         statusCard.classList.remove('show');
       }, 5000);
+    }
+
+    function addActivityRow(data) {
+      if (emptyState) {
+        emptyState.remove();
+      }
+
+      const row = document.createElement('tr');
+      row.className = 'activity-row border-b border-slate-700';
+      row.innerHTML = `
+        <td class="py-4 px-6">
+          <div class="flex items-center">
+            <div class="w-8 h-8 rounded-full bg-blue-600/20 flex items-center justify-center text-blue-400 font-bold text-xs mr-3">
+              ${data.user.charAt(0)}
+            </div>
+            <span class="font-semibold text-slate-200">${data.user}</span>
+          </div>
+        </td>
+        <td class="py-4 px-6 text-slate-300 text-sm font-medium">
+          ${data.kelas || '-'} / ${data.jurusan || '-'}
+        </td>
+        <td class="py-4 px-6 text-slate-400 text-sm">
+          ${data.time}
+        </td>
+        <td class="py-4 px-6 text-right">
+          <span class="px-2 py-1 rounded-md text-[10px] font-bold uppercase bg-green-500/10 text-green-500">
+            HADIR
+          </span>
+        </td>
+      `;
+
+      activityBody.prepend(row);
+
+      // Keep only last 10 rows
+      if (activityBody.children.length > 10) {
+        activityBody.removeChild(activityBody.lastChild);
+      }
     }
   </script>
 </body>

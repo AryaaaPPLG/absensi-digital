@@ -102,6 +102,17 @@
                 <input type="password" id="password" name="password" class="input-field w-full px-4 py-2 rounded-lg" required>
               </div>
             </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label for="kelas" class="block text-sm font-medium text-gray-700 mb-1">Kelas</label>
+                <input type="text" id="kelas" name="kelas" value="{{ old('kelas') }}" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Contoh: XII">
+              </div>
+              <div>
+                <label for="jurusan" class="block text-sm font-medium text-gray-700 mb-1">Jurusan</label>
+                <input type="text" id="jurusan" name="jurusan" value="{{ old('jurusan') }}" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Contoh: RPL">
+              </div>
+            </div>
             
             <div>
               <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Password</label>

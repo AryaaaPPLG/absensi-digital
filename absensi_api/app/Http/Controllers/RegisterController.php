@@ -22,6 +22,8 @@ class RegisterController extends Controller
             'email' => 'required|unique:users',
             'password' => 'required|min:6',
             'role' => 'required|in:guru,siswa',
+            'kelas' => 'nullable|string',
+            'jurusan' => 'nullable|string',
         ]);
        // sementara untuk debugging
         // logger($request->all());
@@ -38,6 +40,8 @@ class RegisterController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
+            'kelas' => $request->kelas,
+            'jurusan' => $request->jurusan,
         ]);
 
         Auth::login($user);

@@ -62,6 +62,13 @@
             50% { transform: translateY(-20px); }
             100% { transform: translateY(0px); }
         }
+        .row-update {
+            animation: highlight 2s ease-out;
+        }
+        @keyframes highlight {
+            0% { background-color: rgba(59, 130, 246, 0.2); }
+            100% { background-color: transparent; }
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 font-sans selection:bg-blue-100 selection:text-blue-600 min-h-screen flex flex-col">
@@ -98,19 +105,27 @@
 
         <div class="max-w-7xl mx-auto px-6 w-full">
             <!-- Header Section -->
-            <div class="mb-12">
-                <div class="inline-flex items-center px-4 py-2 bg-blue-50 border border-blue-100 rounded-full space-x-2 mb-6">
-                    <span class="flex h-2 w-2 rounded-full bg-blue-600 animate-pulse"></span>
-                    <span class="text-xs font-black text-blue-600 uppercase tracking-widest">Data Kehadiran Real-Time</span>
+            <div class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div>
+                    <div class="inline-flex items-center px-4 py-2 bg-blue-50 border border-blue-100 rounded-full space-x-2 mb-6">
+                        <span class="flex h-2 w-2 rounded-full bg-blue-600 animate-pulse"></span>
+                        <span class="text-xs font-black text-blue-600 uppercase tracking-widest">Data Kehadiran Real-Time</span>
+                    </div>
+
+                    <h1 class="text-5xl lg:text-6xl font-black text-slate-900 leading-[1.2] tracking-tight mb-4">
+                        Daftar <span class="text-gradient">Kehadiran Siswa</span>
+                    </h1>
+
+                    <p class="text-lg text-slate-500 font-medium max-w-2xl leading-relaxed">
+                        Pantau kehadiran tim Anda secara real-time. Sistem otomatis mencatat setiap absensi melalui teknologi RFID yang akurat dan terintegrasi.
+                    </p>
                 </div>
 
-                <h1 class="text-5xl lg:text-6xl font-black text-slate-900 leading-[1.2] tracking-tight mb-4">
-                    Daftar <span class="text-gradient">Kehadiran Siswa</span>
-                </h1>
-
-                <p class="text-lg text-slate-500 font-medium max-w-2xl leading-relaxed">
-                    Pantau kehadiran tim Anda secara real-time. Sistem otomatis mencatat setiap absensi melalui teknologi RFID yang akurat dan terintegrasi.
-                </p>
+                <div class="bg-white p-6 rounded-3xl shadow-xl border border-slate-100 min-w-[300px] text-center">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Waktu Saat Ini (WIB)</p>
+                    <div id="realtimeClock" class="text-3xl font-black text-blue-600 tracking-tight"></div>
+                    <p id="realtimeDate" class="text-sm font-bold text-slate-500 mt-1"></p>
+                </div>
             </div>
 
             <!-- Attendance Table Card -->
@@ -133,114 +148,19 @@
                             <tr class="border-b border-slate-100 bg-slate-50">
                                 <th class="px-8 py-4 text-left text-xs font-black text-slate-600 uppercase tracking-widest">No</th>
                                 <th class="px-8 py-4 text-left text-xs font-black text-slate-600 uppercase tracking-widest">Nama Siswa</th>
+                                <th class="px-8 py-4 text-left text-xs font-black text-slate-600 uppercase tracking-widest">Kelas</th>
+                                <th class="px-8 py-4 text-left text-xs font-black text-slate-600 uppercase tracking-widest">Jurusan</th>
                                 <th class="px-8 py-4 text-left text-xs font-black text-slate-600 uppercase tracking-widest">Tanggal</th>
                                 <th class="px-8 py-4 text-left text-xs font-black text-slate-600 uppercase tracking-widest">Waktu Masuk</th>
                                 <th class="px-8 py-4 text-left text-xs font-black text-slate-600 uppercase tracking-widest">Status</th>
                                 <th class="px-8 py-4 text-left text-xs font-black text-slate-600 uppercase tracking-widest">Metode</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100">
-                            <!-- Data 1 -->
-                            <tr class="hover:bg-slate-50 transition-colors">
-                                <td class="px-8 py-5 text-sm font-bold text-slate-900">1</td>
-                                <td class="px-8 py-5">
-                                    <div class="flex items-center space-x-3">
-                                        <img src="https://ui-avatars.com/api/?name=Budi+Santoso&background=3b82f6&color=fff" class="w-10 h-10 rounded-full">
-                                        <div>
-                                            <p class="text-sm font-bold text-slate-900">Budi Santoso</p>
-                                            <p class="text-xs text-slate-500">ID: #001</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-8 py-5 text-sm text-slate-600 font-medium">13 Mei 2026</td>
-                                <td class="px-8 py-5 text-sm text-slate-600 font-medium">08:15</td>
-                                <td class="px-8 py-5">
-                                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">
-                                        <i class="fas fa-check-circle mr-2"></i> Hadir
-                                    </span>
-                                </td>
-                                <td class="px-8 py-5">
-                                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-blue-100 text-blue-700">
-                                        <i class="fas fa-id-card mr-2"></i> RFID
-                                    </span>
-                                </td>
-                            </tr>
-
-                            <!-- Data 2 -->
-                            <tr class="hover:bg-slate-50 transition-colors">
-                                <td class="px-8 py-5 text-sm font-bold text-slate-900">2</td>
-                                <td class="px-8 py-5">
-                                    <div class="flex items-center space-x-3">
-                                        <img src="https://ui-avatars.com/api/?name=Siti+Nurhaliza&background=3b82f6&color=fff" class="w-10 h-10 rounded-full">
-                                        <div>
-                                            <p class="text-sm font-bold text-slate-900">Siti Nurhaliza</p>
-                                            <p class="text-xs text-slate-500">ID: #002</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-8 py-5 text-sm text-slate-600 font-medium">13 Mei 2026</td>
-                                <td class="px-8 py-5 text-sm text-slate-600 font-medium">08:32</td>
-                                <td class="px-8 py-5">
-                                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700">
-                                        <i class="fas fa-clock mr-2"></i> Terlambat
-                                    </span>
-                                </td>
-                                <td class="px-8 py-5">
-                                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-purple-100 text-purple-700">
-                                        <i class="fas fa-face-smile mr-2"></i> Face
-                                    </span>
-                                </td>
-                            </tr>
-
-                            <!-- Data 3 -->
-                            <tr class="hover:bg-slate-50 transition-colors">
-                                <td class="px-8 py-5 text-sm font-bold text-slate-900">3</td>
-                                <td class="px-8 py-5">
-                                    <div class="flex items-center space-x-3">
-                                        <img src="https://ui-avatars.com/api/?name=Ahmad+Hidayat&background=3b82f6&color=fff" class="w-10 h-10 rounded-full">
-                                        <div>
-                                            <p class="text-sm font-bold text-slate-900">Ahmad Hidayat</p>
-                                            <p class="text-xs text-slate-500">ID: #003</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-8 py-5 text-sm text-slate-600 font-medium">13 Mei 2026</td>
-                                <td class="px-8 py-5 text-sm text-slate-600 font-medium">-</td>
-                                <td class="px-8 py-5">
-                                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-red-100 text-red-700">
-                                        <i class="fas fa-times-circle mr-2"></i> Alpha
-                                    </span>
-                                </td>
-                                <td class="px-8 py-5">
-                                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700">
-                                        <i class="fas fa-minus-circle mr-2"></i> -
-                                    </span>
-                                </td>
-                            </tr>
-
-                            <!-- Data 4 -->
-                            <tr class="hover:bg-slate-50 transition-colors">
-                                <td class="px-8 py-5 text-sm font-bold text-slate-900">4</td>
-                                <td class="px-8 py-5">
-                                    <div class="flex items-center space-x-3">
-                                        <img src="https://ui-avatars.com/api/?name=Rina+Wijaya&background=3b82f6&color=fff" class="w-10 h-10 rounded-full">
-                                        <div>
-                                            <p class="text-sm font-bold text-slate-900">Rina Wijaya</p>
-                                            <p class="text-xs text-slate-500">ID: #004</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-8 py-5 text-sm text-slate-600 font-medium">13 Mei 2026</td>
-                                <td class="px-8 py-5 text-sm text-slate-600 font-medium">07:45</td>
-                                <td class="px-8 py-5">
-                                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-cyan-100 text-cyan-700">
-                                        <i class="fas fa-file-alt mr-2"></i> Izin
-                                    </span>
-                                </td>
-                                <td class="px-8 py-5">
-                                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-pink-100 text-pink-700">
-                                        <i class="fas fa-qrcode mr-2"></i> QR Code
-                                    </span>
+                        <tbody class="divide-y divide-slate-100" id="attendanceBody">
+                            <!-- Data will be loaded via JS -->
+                            <tr>
+                                <td colspan="8" class="px-8 py-10 text-center text-slate-400 italic">
+                                    Menghubungkan ke server...
                                 </td>
                             </tr>
                         </tbody>
@@ -250,49 +170,12 @@
                 <!-- Table Footer -->
                 <div class="px-8 py-6 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
                     <p class="text-sm text-slate-600 font-medium">
-                        <span class="font-bold text-slate-900">4</span> Data kehadiran ditampilkan dari total Siswa
+                        <span class="font-bold text-slate-900" id="totalHadir">0</span> Data kehadiran terbaru ditampilkan
                     </p>
-                    <div class="flex items-center space-x-3">
-                        <button class="px-4 py-2 text-sm font-bold text-slate-600 hover:bg-white rounded-lg transition-colors">← Sebelumnya</button>
-                        <div class="flex items-center space-x-1">
-                            <button class="w-8 h-8 rounded-lg bg-blue-600 text-white font-bold text-sm">1</button>
-                            <button class="w-8 h-8 rounded-lg text-slate-600 hover:bg-white font-bold text-sm">2</button>
-                            <button class="w-8 h-8 rounded-lg text-slate-600 hover:bg-white font-bold text-sm">3</button>
-                        </div>
-                        <button class="px-4 py-2 text-sm font-bold text-slate-600 hover:bg-white rounded-lg transition-colors">Selanjutnya →</button>
+                    <div class="text-xs font-bold text-blue-600 uppercase tracking-widest flex items-center">
+                        <div class="w-2 h-2 bg-blue-600 rounded-full mr-2 animate-pulse"></div>
+                        Update Real-time Aktif
                     </div>
-                </div>
-            </div>
-
-            <!-- Info Stats Row -->
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
-                <div class="bg-white rounded-2xl p-6 border border-slate-100 text-center hover:shadow-lg transition-shadow">
-                    <div class="inline-flex items-center justify-center w-12 h-12 bg-emerald-100 rounded-xl mb-4">
-                        <i class="fas fa-check-circle text-emerald-600 text-xl"></i>
-                    </div>
-                    <p class="text-sm text-slate-600 font-medium mb-1">Hadir</p>
-                    <p class="text-3xl font-black text-slate-900">1</p>
-                </div>
-                <div class="bg-white rounded-2xl p-6 border border-slate-100 text-center hover:shadow-lg transition-shadow">
-                    <div class="inline-flex items-center justify-center w-12 h-12 bg-amber-100 rounded-xl mb-4">
-                        <i class="fas fa-clock text-amber-600 text-xl"></i>
-                    </div>
-                    <p class="text-sm text-slate-600 font-medium mb-1">Terlambat</p>
-                    <p class="text-3xl font-black text-slate-900">1</p>
-                </div>
-                <div class="bg-white rounded-2xl p-6 border border-slate-100 text-center hover:shadow-lg transition-shadow">
-                    <div class="inline-flex items-center justify-center w-12 h-12 bg-cyan-100 rounded-xl mb-4">
-                        <i class="fas fa-file-alt text-cyan-600 text-xl"></i>
-                    </div>
-                    <p class="text-sm text-slate-600 font-medium mb-1">Izin</p>
-                    <p class="text-3xl font-black text-slate-900">1</p>
-                </div>
-                <div class="bg-white rounded-2xl p-6 border border-slate-100 text-center hover:shadow-lg transition-shadow">
-                    <div class="inline-flex items-center justify-center w-12 h-12 bg-red-100 rounded-xl mb-4">
-                        <i class="fas fa-times-circle text-red-600 text-xl"></i>
-                    </div>
-                    <p class="text-sm text-slate-600 font-medium mb-1">Alpha</p>
-                    <p class="text-3xl font-black text-slate-900">1</p>
                 </div>
             </div>
         </div>
@@ -307,5 +190,140 @@
         </div>
     </footer>
 
+    <script>
+        const attendanceBody = document.getElementById('attendanceBody');
+        const totalHadir = document.getElementById('totalHadir');
+        const realtimeClock = document.getElementById('realtimeClock');
+        const realtimeDate = document.getElementById('realtimeDate');
+
+        function updateClock() {
+            const now = new Date();
+            const timeOptions = { 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit',
+                hour12: false,
+                timeZone: 'Asia/Jakarta'
+            };
+            const dateOptions = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                timeZone: 'Asia/Jakarta'
+            };
+            realtimeClock.textContent = now.toLocaleTimeString('id-ID', timeOptions);
+            realtimeDate.textContent = now.toLocaleDateString('id-ID', dateOptions);
+        }
+        
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        let lastDataIds = [];
+
+        async function fetchRealtimeData() {
+            try {
+                const response = await fetch('/api/attendance/realtime');
+                const data = await response.json();
+
+                if (data.success) {
+                    updateTable(data.recent);
+                }
+            } catch (error) {
+                console.error('Error fetching realtime data:', error);
+            }
+        }
+
+        function updateTable(recent) {
+            if (recent.length === 0) {
+                attendanceBody.innerHTML = '<tr><td colspan="8" class="px-8 py-10 text-center text-slate-400 italic">Belum ada data kehadiran hari ini</td></tr>';
+                totalHadir.textContent = '0';
+                return;
+            }
+
+            totalHadir.textContent = recent.length;
+            
+            // Check if there are new items to highlight
+            const currentIds = recent.map(item => item.id);
+            const newIds = currentIds.filter(id => !lastDataIds.includes(id));
+            
+            let html = '';
+            recent.forEach((item, index) => {
+                const isNew = newIds.includes(item.id);
+                const statusClass = getStatusClass(item.status);
+                
+                html += `
+                    <tr class="hover:bg-slate-50 transition-colors ${isNew ? 'row-update' : ''}">
+                        <td class="px-8 py-5 text-sm font-bold text-slate-900">${index + 1}</td>
+                        <td class="px-8 py-5">
+                            <div class="flex items-center space-x-3">
+                                <img src="${item.avatar}" class="w-10 h-10 rounded-full">
+                                <div>
+                                    <p class="text-sm font-bold text-slate-900">${item.user_name}</p>
+                                    <p class="text-xs text-slate-500">ID: #${item.user_id}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-8 py-5 text-sm text-slate-600 font-bold">${item.kelas || '-'}</td>
+                        <td class="px-8 py-5 text-sm text-slate-600 font-bold">${item.jurusan || '-'}</td>
+                        <td class="px-8 py-5 text-sm text-slate-600 font-medium">${item.date}</td>
+                        <td class="px-8 py-5 text-sm text-slate-600 font-medium">${item.time_in || '-'}</td>
+                        <td class="px-8 py-5">
+                            <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold ${statusClass}">
+                                <i class="fas ${getStatusIcon(item.status)} mr-2"></i> ${capitalize(item.status)}
+                            </span>
+                        </td>
+                        <td class="px-8 py-5">
+                            <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-blue-100 text-blue-700">
+                                <i class="fas ${getMethodIcon(item.method)} mr-2"></i> ${item.method}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            attendanceBody.innerHTML = html;
+            lastDataIds = currentIds;
+        }
+
+        function getStatusClass(status) {
+            switch(status.toLowerCase()) {
+                case 'hadir': return 'bg-emerald-100 text-emerald-700';
+                case 'terlambat': return 'bg-amber-100 text-amber-700';
+                case 'izin': return 'bg-cyan-100 text-cyan-700';
+                case 'alpha': return 'bg-red-100 text-red-700';
+                default: return 'bg-slate-100 text-slate-700';
+            }
+        }
+
+        function getStatusIcon(status) {
+            switch(status.toLowerCase()) {
+                case 'hadir': return 'fa-check-circle';
+                case 'terlambat': return 'fa-clock';
+                case 'izin': return 'fa-file-alt';
+                case 'alpha': return 'fa-times-circle';
+                default: return 'fa-question-circle';
+            }
+        }
+
+        function getMethodIcon(method) {
+            switch(method.toLowerCase()) {
+                case 'rfid': return 'fa-id-card';
+                case 'face': return 'fa-face-smile';
+                case 'qr': return 'fa-qrcode';
+                default: return 'fa-fingerprint';
+            }
+        }
+
+        function capitalize(s) {
+            return s.charAt(0).toUpperCase() + s.slice(1);
+        }
+
+        // Initial fetch
+        fetchRealtimeData();
+
+        // Poll every 5 seconds
+        setInterval(fetchRealtimeData, 5000);
+    </script>
 </body>
 </html>

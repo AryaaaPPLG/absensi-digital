@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\SchoolClass;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -15,7 +16,7 @@ class UserController extends Controller
             abort(403);
         }
 
-        $users = User::orderBy('role')->orderBy('name')->get();
+        $users = User::with('schoolClass')->orderBy('role')->orderBy('name')->get();
         return view('users.index', compact('users'));
     }
 
@@ -31,9 +32,17 @@ class UserController extends Controller
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6',
             'role' => 'required|in:admin,guru,siswa',
-            'kelas' => 'nullable|string',
-            'jurusan' => 'nullable|string',
+            'kelas' => 'nullable|string|required_with:jurusan',
+            'jurusan' => 'nullable|string|required_with:kelas',
         ]);
+
+        $classId = null;
+        if ($request->filled('kelas') && $request->filled('jurusan')) {
+            $schoolClass = SchoolClass::firstOrCreate(
+                ['nama_kelas' => $request->kelas, 'jurusan' => $request->jurusan]
+            );
+            $classId = $schoolClass->id;
+        }
 
         User::create([
             'name' => $request->name,
@@ -41,8 +50,7 @@ class UserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
-            'kelas' => $request->kelas,
-            'jurusan' => $request->jurusan,
+            'class_id' => $classId,
         ]);
 
         return back()->with('success', 'Pengguna berhasil ditambahkan.');
@@ -58,11 +66,22 @@ class UserController extends Controller
             'name' => 'required',
             'role' => 'required|in:admin,guru,siswa',
             'rfid_uid' => 'nullable|unique:users,rfid_uid,' . $user->id,
-            'kelas' => 'nullable|string',
-            'jurusan' => 'nullable|string',
+            'kelas' => 'nullable|string|required_with:jurusan',
+            'jurusan' => 'nullable|string|required_with:kelas',
         ]);
 
-        $user->update($request->only(['name', 'role', 'rfid_uid', 'kelas', 'jurusan']));
+        $classId = $user->class_id;
+        if ($request->filled('kelas') && $request->filled('jurusan')) {
+            $schoolClass = SchoolClass::firstOrCreate(
+                ['nama_kelas' => $request->kelas, 'jurusan' => $request->jurusan]
+            );
+            $classId = $schoolClass->id;
+        }
+
+        $updateData = $request->only(['name', 'role', 'rfid_uid']);
+        $updateData['class_id'] = $classId;
+
+        $user->update($updateData);
 
         if ($request->password) {
             $user->update(['password' => Hash::make($request->password)]);

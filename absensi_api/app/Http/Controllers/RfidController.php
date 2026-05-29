@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Attendance;
+use App\Events\AttendanceScanned;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -43,7 +44,7 @@ class RfidController extends Controller
             'rfid_uid' => 'required|string',
         ]);
 
-        $user = User::where('rfid_uid', $request->rfid_uid)->first();
+        $user = User::with('schoolClass')->where('rfid_uid', $request->rfid_uid)->first();
 
         if (!$user) {
             return response()->json([
@@ -60,14 +61,45 @@ class RfidController extends Controller
             ->first();
 
         if ($attendance) {
+            if ($attendance->time_out) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda sudah melakukan absensi masuk dan pulang hari ini.',
+                    'user' => $user->name,
+                    'user_id' => $user->id,
+                    'time_in' => $attendance->time_in,
+                    'time_out' => $attendance->time_out
+                ], 400);
+            }
+
+            // Check if clock out is allowed (Gate check)
+            if (\App\Models\Config::get('allow_clock_out', '0') !== '1') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gerbang absensi pulang belum dibuka oleh admin.',
+                    'user' => $user->name,
+                    'user_id' => $user->id,
+                    'time_in' => $attendance->time_in,
+                ], 403);
+            }
+
+            $attendance->update([
+                'time_out' => Carbon::now()->toTimeString()
+            ]);
+
+            // Trigger Real-time Event
+            event(new AttendanceScanned($attendance));
+
             return response()->json([
-                'success' => false,
-                'message' => 'You have already recorded your attendance today.',
+                'success' => true,
+                'message' => 'Absensi pulang berhasil dicatat!',
                 'user' => $user->name,
-                'kelas' => $user->kelas,
-                'jurusan' => $user->jurusan,
-                'time' => $attendance->time_in
-            ], 400);
+                'user_id' => $user->id,
+                'kelas' => $user->schoolClass?->nama_kelas,
+                'jurusan' => $user->schoolClass?->jurusan,
+                'time' => $attendance->time_out,
+                'type' => 'out'
+            ]);
         }
 
         // Record attendance
@@ -79,13 +111,18 @@ class RfidController extends Controller
             'method' => 'rfid',
         ]);
 
+        // Trigger Real-time Event
+        event(new AttendanceScanned($attendance));
+
         return response()->json([
             'success' => true,
-            'message' => 'Attendance recorded successfully!',
+            'message' => 'Absensi masuk berhasil dicatat!',
             'user' => $user->name,
-            'kelas' => $user->kelas,
-            'jurusan' => $user->jurusan,
-            'time' => $attendance->time_in
+            'user_id' => $user->id,
+            'kelas' => $user->schoolClass?->nama_kelas,
+            'jurusan' => $user->schoolClass?->jurusan,
+            'time' => $attendance->time_in,
+            'type' => 'in'
         ]);
     }
 }

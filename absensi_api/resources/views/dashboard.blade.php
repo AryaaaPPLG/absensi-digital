@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Sistem Absensi Digital</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    
+    
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #1e293b; }
         .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
@@ -21,6 +21,7 @@
             100% { background-color: transparent; }
         }
     </style>
+  @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen">
     <!-- Sidebar / Nav -->
@@ -187,6 +188,27 @@
                         <div class="relative z-10">
                             <h3 class="text-xl font-extrabold mb-4">Quick Actions</h3>
                             <div class="grid grid-cols-1 gap-3">
+                                <form action="{{ route('admin.toggle-pulang') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="w-full {{ $isClockOutOpen ? 'bg-emerald-500/20 hover:bg-emerald-500/30' : 'bg-red-500/20 hover:bg-red-500/30' }} p-4 rounded-2xl flex items-center transition-all duration-300">
+                                        <div class="w-10 h-10 rounded-xl {{ $isClockOutOpen ? 'bg-emerald-500' : 'bg-red-500' }} flex items-center justify-center mr-4">
+                                            <i class="fas {{ $isClockOutOpen ? 'fa-door-open' : 'fa-door-closed' }}"></i>
+                                        </div>
+                                        <div class="text-left">
+                                            <span class="font-bold block text-sm">Absensi Pulang</span>
+                                            <span class="text-[10px] font-bold uppercase tracking-widest opacity-70">{{ $isClockOutOpen ? 'Sedang Dibuka' : 'Sedang Ditutup' }}</span>
+                                        </div>
+                                    </button>
+                                </form>
+                                <a href="{{ route('admin.ai-insight') }}" class="w-full bg-blue-500/20 hover:bg-blue-500/30 p-4 rounded-2xl flex items-center transition-all duration-300 border border-blue-400/30">
+                                    <div class="w-10 h-10 rounded-xl bg-blue-500 flex items-center justify-center mr-4 shadow-lg shadow-blue-500/50">
+                                        <i class="fas fa-robot"></i>
+                                    </div>
+                                    <div class="text-left">
+                                        <span class="font-bold block text-sm">AI Overlord Insight</span>
+                                        <span class="text-[10px] font-bold uppercase tracking-widest opacity-70 italic text-blue-200">New Beta Feature</span>
+                                    </div>
+                                </a>
                                 <a href="{{ route('rekap.index') }}" class="w-full bg-white/10 hover:bg-white/20 p-4 rounded-2xl flex items-center transition-all duration-300">
                                     <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center mr-4">
                                         <i class="fas fa-file-alt"></i>
@@ -195,7 +217,7 @@
                                 </a>
                                 <a href="{{ route('absensi.view') }}" class="w-full bg-white/10 hover:bg-white/20 p-4 rounded-2xl flex items-center transition-all duration-300">
                                     <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center mr-4">
-                                        <i class="fas fa-qrcode"></i>
+                                        <i class="fas fa-id-card"></i>
                                     </div>
                                     <span class="font-bold">Buka Terminal Scan</span>
                                 </a>
@@ -233,70 +255,66 @@
             </div>
 
             <script>
-                const dashActivityBody = document.getElementById('dashActivityBody');
-                const dashHadirToday = document.getElementById('dashHadirToday');
-                const dashTerlambatToday = document.getElementById('dashTerlambatToday');
-                let lastKnownIds = [];
+                document.addEventListener('DOMContentLoaded', function() {
+                    const dashActivityBody = document.getElementById('dashActivityBody');
+                    const dashHadirToday = document.getElementById('dashHadirToday');
+                    const dashTerlambatToday = document.getElementById('dashTerlambatToday');
 
-                async function updateDashboardRealtime() {
-                    try {
-                        const response = await fetch('/api/attendance/realtime');
-                        const data = await response.json();
+                    if (window.Echo) {
+                        window.Echo.channel('attendance-channel')
+                            .listen('.AttendanceScanned', (e) => {
+                                console.log('Attendance received:', e);
+                                
+                                // Create new row
+                                const newRow = `
+                                    <tr class="row-new">
+                                        <td class="py-4 pr-4">
+                                            <div class="flex items-center">
+                                                <div class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold text-xs mr-3">
+                                                    ${e.nama_siswa.charAt(0)}
+                                                </div>
+                                                <div class="flex flex-col">
+                                                    <span class="text-sm font-bold text-slate-700 leading-tight">${e.nama_siswa}</span>
+                                                    <span class="text-[10px] text-slate-400 font-semibold uppercase">${e.role || 'SISWA'}</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="py-4 px-4">
+                                            <span class="text-sm font-semibold text-slate-600">${e.waktu_absen}</span>
+                                        </td>
+                                        <td class="py-4 px-4">
+                                            <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${e.status === 'hadir' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}">
+                                                ${e.status}
+                                            </span>
+                                        </td>
+                                        <td class="py-4 pl-4 text-right">
+                                            <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">${e.metode_rfid}</span>
+                                        </td>
+                                    </tr>
+                                `;
 
-                        if (data.success) {
-                            dashHadirToday.textContent = data.stats.hadir;
-                            dashTerlambatToday.textContent = data.stats.terlambat;
-                            
-                            const currentIds = data.recent.map(item => item.id);
-                            const newIds = currentIds.filter(id => !lastKnownIds.includes(id));
-                            
-                            if (newIds.length > 0) {
-                                renderDashboardTable(data.recent, newIds);
-                            }
-                            lastKnownIds = currentIds;
-                        }
-                    } catch (e) { console.error(e); }
-                }
+                                // Remove "Belum ada data" if exists
+                                if (dashActivityBody.querySelector('td[colspan="4"]')) {
+                                    dashActivityBody.innerHTML = '';
+                                }
 
-                function renderDashboardTable(recent, newIds) {
-                    if (recent.length === 0) return;
-                    
-                    let html = '';
-                    recent.forEach(item => {
-                        const isNew = newIds.includes(item.id);
-                        html += `
-                            <tr class="${isNew ? 'row-new' : ''}">
-                                <td class="py-4 pr-4">
-                                    <div class="flex items-center">
-                                        <div class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold text-xs mr-3">
-                                            ${item.user_name.charAt(0)}
-                                        </div>
-                                        <div class="flex flex-col">
-                                            <span class="text-sm font-bold text-slate-700 leading-tight">${item.user_name}</span>
-                                            <span class="text-[10px] text-slate-400 font-semibold uppercase">SISWA</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="py-4 px-4">
-                                    <span class="text-sm font-semibold text-slate-600">${item.time_in}</span>
-                                </td>
-                                <td class="py-4 px-4">
-                                    <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${item.status === 'hadir' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}">
-                                        ${item.status}
-                                    </span>
-                                </td>
-                                <td class="py-4 pl-4 text-right">
-                                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">${item.method}</span>
-                                </td>
-                            </tr>
-                        `;
-                    });
-                    dashActivityBody.innerHTML = html;
-                }
+                                // Prepend new row
+                                dashActivityBody.insertAdjacentHTML('afterbegin', newRow);
 
-                // Initial load
-                lastKnownIds = @json($stats['recent_attendances']->pluck('id'));
-                setInterval(updateDashboardRealtime, 5000);
+                                // Limit to 10 rows
+                                if (dashActivityBody.children.length > 10) {
+                                    dashActivityBody.lastElementChild.remove();
+                                }
+
+                                // Update stats
+                                if (e.status === 'hadir' && e.type === 'in') {
+                                    dashHadirToday.textContent = parseInt(dashHadirToday.textContent) + 1;
+                                } else if (e.status === 'terlambat' && e.type === 'in') {
+                                    dashTerlambatToday.textContent = parseInt(dashTerlambatToday.textContent) + 1;
+                                }
+                            });
+                    }
+                });
             </script>
 
         @else

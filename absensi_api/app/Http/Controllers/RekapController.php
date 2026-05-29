@@ -19,24 +19,26 @@ class RekapController extends Controller
         }
 
         $date = $request->input('date', Carbon::today()->toDateString());
+        $selectedRole = $request->input('role', 'siswa');
         
-        $siswa = User::where('role', 'siswa')->orderBy('name')->get();
+        $users = User::with('schoolClass')->where('role', $selectedRole)->orderBy('name')->get();
         $attendances = Attendance::whereDate('date', $date)->get()->keyBy('user_id');
 
-        $rekap = $siswa->map(function ($user) use ($attendances, $date) {
+        $rekap = $users->map(function ($user) use ($attendances, $date) {
             $att = $attendances->get($user->id);
             return (object) [
                 'user_id' => $user->id,
                 'name' => $user->name,
-                'kelas' => $user->kelas,
-                'jurusan' => $user->jurusan,
+                'kelas' => $user->schoolClass?->nama_kelas,
+                'jurusan' => $user->schoolClass?->jurusan,
                 'status' => $att ? $att->status : 'alpha',
                 'time_in' => $att ? $att->time_in : '-',
+                'time_out' => $att ? ($att->time_out ?? '-') : '-',
                 'date' => $date
             ];
         });
 
-        return view('rekap.index', compact('rekap', 'date'));
+        return view('rekap.index', compact('rekap', 'date', 'selectedRole'));
     }
 
     public function update(Request $request)
@@ -51,11 +53,28 @@ class RekapController extends Controller
             'status' => 'required|in:hadir,alpha,izin,terlambat'
         ]);
 
+        $date = Carbon::parse($request->date)->format('Y-m-d');
+        
+        // Find existing attendance to preserve time_in if it exists
+        $attendance = Attendance::where('user_id', $request->user_id)
+            ->whereDate('date', $date)
+            ->first();
+
+        $time_in = $attendance ? $attendance->time_in : null;
+        
+        // If changing to hadir/terlambat and no time_in exists, set current time
+        if (in_array($request->status, ['hadir', 'terlambat']) && !$time_in) {
+            $time_in = now()->toTimeString();
+        } elseif (in_array($request->status, ['alpha', 'izin'])) {
+            $time_in = null;
+        }
+
         Attendance::updateOrCreate(
-            ['user_id' => $request->user_id, 'date' => $request->date],
+            ['user_id' => $request->user_id, 'date' => $date],
             [
                 'status' => $request->status, 
-                'time_in' => ($request->status == 'hadir' || $request->status == 'terlambat') && !$request->time_in ? now()->toTimeString() : $request->time_in
+                'time_in' => $time_in,
+                'method' => $attendance->method ?? 'manual'
             ]
         );
 
@@ -69,16 +88,17 @@ class RekapController extends Controller
         }
 
         $date = $request->input('date', Carbon::today()->toDateString());
-        $siswa = User::where('role', 'siswa')->get();
+        $role = $request->input('role', 'siswa');
+        $users = User::where('role', $role)->get();
 
-        foreach ($siswa as $user) {
+        foreach ($users as $user) {
             Attendance::updateOrCreate(
                 ['user_id' => $user->id, 'date' => $date],
                 ['status' => 'hadir', 'time_in' => '07:00:00', 'method' => 'manual']
             );
         }
 
-        return back()->with('success', 'Semua siswa berhasil ditandai hadir.');
+        return back()->with('success', 'Semua ' . ($role == 'siswa' ? 'siswa' : 'guru') . ' berhasil ditandai hadir.');
     }
 
     public function export(Request $request)
@@ -88,30 +108,33 @@ class RekapController extends Controller
         }
 
         $date = $request->input('date', Carbon::today()->toDateString());
-        $siswa = User::where('role', 'siswa')->orderBy('name')->get();
+        $role = $request->input('role', 'siswa');
+        $users = User::with('schoolClass')->where('role', $role)->orderBy('name')->get();
         $attendances = Attendance::whereDate('date', $date)->get()->keyBy('user_id');
 
         $headers = [
             "Content-type"        => "text/csv",
-            "Content-Disposition" => "attachment; filename=rekap-absensi-$date.csv",
+            "Content-Disposition" => "attachment; filename=rekap-absensi-{$role}-{$date}.csv",
             "Pragma"              => "no-cache",
             "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
             "Expires"             => "0"
         ];
 
-        $callback = function() use($siswa, $attendances, $date) {
+        $callback = function() use($users, $attendances, $date, $role) {
             $file = fopen('php://output', 'w');
-            fputcsv($file, ['No', 'Nama', 'Kelas', 'Jurusan', 'Tanggal', 'Jam Masuk', 'Status']);
+            fputcsv($file, ['No', 'Nama', 'Role', 'Kelas', 'Jurusan', 'Tanggal', 'Jam Masuk', 'Jam Pulang', 'Status']);
 
-            foreach ($siswa as $index => $user) {
+            foreach ($users as $index => $user) {
                 $att = $attendances->get($user->id);
                 fputcsv($file, [
                     $index + 1,
                     $user->name,
-                    $user->kelas,
-                    $user->jurusan,
+                    strtoupper($user->role),
+                    $user->schoolClass?->nama_kelas,
+                    $user->schoolClass?->jurusan,
                     $date,
                     $att ? $att->time_in : '-',
+                    $att ? ($att->time_out ?? '-') : '-',
                     $att ? strtoupper($att->status) : 'ALPHA'
                 ]);
             }

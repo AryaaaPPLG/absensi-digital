@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Attendance;
 use Illuminate\Http\Request;
+use App\Models\Config;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Artisan;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
@@ -13,6 +15,7 @@ class DashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
+        $isClockOutOpen = Config::get('allow_clock_out', '0') === '1';
 
         // Admin Dashboard Logic
         if ($user->role === 'admin') {
@@ -22,13 +25,13 @@ class DashboardController extends Controller
                 'total_siswa' => User::where('role', 'siswa')->count(),
                 'attendance_today' => Attendance::whereDate('date', Carbon::today())->count(),
                 'terlambat_today' => Attendance::whereDate('date', Carbon::today())->where('status', 'terlambat')->count(),
-                'recent_attendances' => Attendance::with('user')
+                'recent_attendances' => Attendance::with('user.schoolClass')
                     ->latest()
                     ->take(10)
                     ->get()
             ];
 
-            return view('dashboard', compact('user', 'stats'));
+            return view('dashboard', compact('user', 'stats', 'isClockOutOpen'));
         }
 
         // Regular User Dashboard Logic
@@ -44,6 +47,34 @@ class DashboardController extends Controller
             'history' => Attendance::where('user_id', $user->id)->latest()->take(5)->get()
         ];
 
-        return view('dashboard', compact('user', 'myStats'));
+        return view('dashboard', compact('user', 'myStats', 'isClockOutOpen'));
+    }
+
+    public function toggleClockOut()
+    {
+        if (Auth::user()->role !== 'admin') {
+            abort(403);
+        }
+
+        $current = Config::get('allow_clock_out', '0');
+        $new = $current === '1' ? '0' : '1';
+        Config::set('allow_clock_out', $new);
+
+        $status = $new === '1' ? 'DIBUKA' : 'DITUTUP';
+        return back()->with('success', "Gerbang absensi pulang berhasil $status.");
+    }
+
+    /**
+     * Force run the daily recap command.
+     */
+    public function forceRecap()
+    {
+        if (!in_array(Auth::user()->role, ['admin', 'guru'])) {
+            abort(403);
+        }
+
+        Artisan::call('attendance:recap-daily');
+        
+        return back()->with('success', 'Rekapitulasi otomatis berhasil dijalankan. Semua absen yang kosong hari ini telah ditandai Alpha.');
     }
 }

@@ -22,13 +22,6 @@
     </nav>
 
     <main class="max-w-7xl mx-auto px-6 py-10">
-        @if(session('success'))
-            <div class="mb-8 p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-2xl flex items-center shadow-sm">
-                <i class="fas fa-check-circle mr-3 text-lg"></i>
-                <span class="font-medium">{{ session('success') }}</span>
-            </div>
-        @endif
-
         @if($errors->any())
             <div class="mb-8 p-4 bg-red-50 border border-red-200 text-red-700 rounded-2xl shadow-sm">
                 <ul class="list-disc list-inside">
@@ -65,8 +58,8 @@
                             </td>
                             <td class="py-5 px-8">
                                 <div class="flex flex-col">
-                                    <span class="text-sm font-semibold text-slate-600">{{ $user->kelas ?? '-' }}</span>
-                                    <span class="text-[10px] text-slate-400 font-bold uppercase">{{ $user->jurusan ?? '-' }}</span>
+                                    <span class="text-sm font-semibold text-slate-600">{{ $user->schoolClass?->nama_kelas ?? '-' }}</span>
+                                    <span class="text-[10px] text-slate-400 font-bold uppercase">{{ $user->schoolClass?->jurusan ?? '-' }}</span>
                                 </div>
                             </td>
                             <td class="py-5 px-8">
@@ -216,14 +209,14 @@
     function editUser(user) {
         document.getElementById('editForm').action = '/users/' + user.id;
         document.getElementById('editName').value = user.name;
-        document.getElementById('editKelas').value = user.kelas || '';
-        document.getElementById('editJurusan').value = user.jurusan || '';
+        document.getElementById('editKelas').value = user.school_class ? user.school_class.nama_kelas : '';
+        document.getElementById('editJurusan').value = user.school_class ? user.school_class.jurusan : '';
         document.getElementById('editRole').value = user.role;
         document.getElementById('editRfid').value = user.rfid_uid || '';
         document.getElementById('editModal').classList.remove('hidden');
     }
 </script>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<script src="https://cdn.tailwindcss.com"></script>
+
+
 @endsection

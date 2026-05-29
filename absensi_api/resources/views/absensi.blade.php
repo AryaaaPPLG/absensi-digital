@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Scan Absensi RFID - Sistem Absensi Digital</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <title>Terminal RFID - Sistem Absensi Digital</title>
+  
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
   <style>
     body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: white; }
     .scan-container { border: 2px dashed #334155; transition: all 0.3s ease; }
@@ -25,6 +25,9 @@
       to { opacity: 1; transform: translateX(0); }
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  @vite(['resources/css/app.css', 'resources/js/app.js'])
+
 </head>
 <body class="min-h-screen p-4 flex flex-col items-center">
   
@@ -49,18 +52,13 @@
           <input type="text" id="rfidInput" class="absolute opacity-0 pointer-events-none" autofocus>
         </div>
 
-        <!-- Status Result -->
+        <!-- Status Result (Legacy, now handled by SweetAlert2 but kept for structure) -->
         <div id="statusCard" class="status-card bg-slate-800 rounded-2xl p-6 border-l-8 shadow-2xl">
           <div class="flex items-center">
             <div id="statusIcon" class="mr-5 text-4xl"></div>
             <div>
               <h2 id="statusTitle" class="text-2xl font-bold"></h2>
               <p id="statusMessage" class="text-slate-400 mt-1"></p>
-              <div id="userDetails" class="mt-3 flex flex-wrap items-center text-sm gap-2">
-                <span class="bg-slate-700 px-3 py-1 rounded-full text-blue-400 font-semibold" id="userName"></span>
-                <span class="bg-blue-600/20 px-3 py-1 rounded-full text-blue-300 font-bold" id="userKelasJurusan"></span>
-                <span class="text-slate-500" id="scanTime"></span>
-              </div>
             </div>
           </div>
         </div>
@@ -82,27 +80,25 @@
             <thead>
               <tr class="text-left text-slate-500 text-xs font-bold uppercase tracking-widest bg-slate-900/50">
                 <th class="py-4 px-6">Nama</th>
-                <th class="py-4 px-6">Kelas/Jurusan</th>
-                <th class="py-4 px-6">Waktu</th>
+                <th class="py-4 px-6">Masuk</th>
+                <th class="py-4 px-6">Pulang</th>
                 <th class="py-4 px-6 text-right">Status</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-700" id="activityBody">
               @forelse($recentAttendances as $att)
-              <tr class="activity-row">
+              <tr class="activity-row" id="row-{{ $att->user_id }}">
                 <td class="py-4 px-6">
-                  <div class="flex items-center">
-                    <div class="w-8 h-8 rounded-full bg-blue-600/20 flex items-center justify-center text-blue-400 font-bold text-xs mr-3">
-                      {{ substr($att->user->name, 0, 1) }}
-                    </div>
+                  <div class="flex flex-col">
                     <span class="font-semibold text-slate-200">{{ $att->user->name }}</span>
+                    <span class="text-[10px] text-slate-500">{{ $att->user->schoolClass?->nama_kelas ?? '-' }} / {{ $att->user->schoolClass?->jurusan ?? '-' }}</span>
                   </div>
                 </td>
-                <td class="py-4 px-6 text-slate-300 text-sm font-medium">
-                  {{ $att->user->kelas }} / {{ $att->user->jurusan }}
-                </td>
-                <td class="py-4 px-6 text-slate-400 text-sm">
+                <td class="py-4 px-6 text-slate-400 text-sm font-medium time-in">
                   {{ $att->time_in }}
+                </td>
+                <td class="py-4 px-6 text-slate-400 text-sm font-medium time-out">
+                  {{ $att->time_out ?? '-' }}
                 </td>
                 <td class="py-4 px-6 text-right">
                   <span class="px-2 py-1 rounded-md text-[10px] font-bold uppercase {{ $att->status === 'hadir' ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500' }}">
@@ -125,13 +121,6 @@
   <script>
     const rfidInput = document.getElementById('rfidInput');
     const scannerArea = document.getElementById('scannerArea');
-    const statusCard = document.getElementById('statusCard');
-    const statusTitle = document.getElementById('statusTitle');
-    const statusMessage = document.getElementById('statusMessage');
-    const statusIcon = document.getElementById('statusIcon');
-    const userName = document.getElementById('userName');
-    const userKelasJurusan = document.getElementById('userKelasJurusan');
-    const scanTime = document.getElementById('scanTime');
     const instructionText = document.getElementById('instructionText');
     const activityBody = document.getElementById('activityBody');
     const emptyState = document.getElementById('emptyState');
@@ -191,7 +180,7 @@
 
         if (response.ok) {
           showStatus('success', data);
-          addActivityRow(data);
+          updateActivityRow(data);
         } else {
           showStatus('error', data);
         }
@@ -206,65 +195,85 @@
     }
 
     function showStatus(type, data) {
-      statusCard.classList.remove('show', 'border-green-500', 'border-red-500', 'border-yellow-500');
-      
       if (type === 'success') {
-        statusCard.classList.add('show', 'border-green-500');
-        statusIcon.innerHTML = '<i class="fas fa-check-circle text-green-500"></i>';
-        statusTitle.textContent = 'Berhasil Hadir';
-        statusTitle.className = 'text-2xl font-bold text-green-400';
-        statusMessage.textContent = data.message;
-        userName.textContent = data.user;
-        userKelasJurusan.textContent = (data.kelas || '-') + ' / ' + (data.jurusan || '-');
-        scanTime.textContent = data.time;
-        document.getElementById('userDetails').style.display = 'flex';
+        const isOut = data.type === 'out';
+        Swal.fire({
+          icon: 'success',
+          title: isOut ? 'Berhasil Pulang' : 'Berhasil Hadir',
+          html: `
+            <div class="text-left mt-2 p-4 bg-slate-50 rounded-xl border border-slate-100">
+              <div class="flex justify-between mb-1">
+                <span class="text-slate-400 text-xs font-bold uppercase">Nama</span>
+                <span class="text-slate-700 font-bold">${data.user}</span>
+              </div>
+              <div class="flex justify-between mb-1">
+                <span class="text-slate-400 text-xs font-bold uppercase">Kelas</span>
+                <span class="text-slate-700 font-bold">${data.kelas || '-'} / ${data.jurusan || '-'}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-400 text-xs font-bold uppercase">Waktu</span>
+                <span class="text-blue-600 font-bold">${data.time}</span>
+              </div>
+            </div>
+            <p class="mt-4 text-slate-500 font-medium">${data.message}</p>
+          `,
+          showConfirmButton: false,
+          timer: 4000,
+          timerProgressBar: true,
+          background: '#ffffff',
+          color: '#1e293b',
+          customClass: {
+            popup: 'rounded-[2rem] border-none shadow-2xl'
+          }
+        });
       } else {
         const isWarning = data.message.includes('sudah');
-        statusCard.classList.add('show', isWarning ? 'border-yellow-500' : 'border-red-500');
-        statusIcon.innerHTML = isWarning 
-          ? '<i class="fas fa-exclamation-triangle text-yellow-500"></i>' 
-          : '<i class="fas fa-times-circle text-red-500"></i>';
-        statusTitle.textContent = isWarning ? 'Sudah Absen' : 'Gagal Absen';
-        statusTitle.className = 'text-2xl font-bold ' + (isWarning ? 'text-yellow-400' : 'text-red-400');
-        statusMessage.textContent = data.message;
-        
-        if (data.user) {
-          userName.textContent = data.user;
-          userKelasJurusan.textContent = (data.kelas || '-') + ' / ' + (data.jurusan || '-');
-          scanTime.textContent = data.time || '';
-          document.getElementById('userDetails').style.display = 'flex';
-        } else {
-          document.getElementById('userDetails').style.display = 'none';
-        }
+        Swal.fire({
+          icon: isWarning ? 'warning' : 'error',
+          title: isWarning ? 'Sudah Absen' : 'Gagal Absen',
+          text: data.message,
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#3b82f6',
+          background: '#ffffff',
+          color: '#1e293b',
+          customClass: {
+            popup: 'rounded-[2rem] border-none shadow-2xl',
+            confirmButton: 'rounded-xl px-8 py-3 font-bold uppercase tracking-wider'
+          }
+        });
       }
-
-      // Hide status card after 5 seconds
-      setTimeout(() => {
-        statusCard.classList.remove('show');
-      }, 5000);
     }
 
-    function addActivityRow(data) {
+    function updateActivityRow(data) {
       if (emptyState) {
         emptyState.remove();
       }
 
+      // Try to find existing row for this user (for clock out)
+      const existingRow = activityBody.querySelector(`[id="row-${data.user_id}"]`);
+      
+      if (data.type === 'out' && existingRow) {
+        existingRow.querySelector('.time-out').textContent = data.time;
+        existingRow.classList.add('bg-blue-500/5');
+        setTimeout(() => existingRow.classList.remove('bg-blue-500/5'), 2000);
+        return;
+      }
+
       const row = document.createElement('tr');
+      row.id = `row-${data.user_id || Date.now()}`;
       row.className = 'activity-row border-b border-slate-700';
       row.innerHTML = `
         <td class="py-4 px-6">
-          <div class="flex items-center">
-            <div class="w-8 h-8 rounded-full bg-blue-600/20 flex items-center justify-center text-blue-400 font-bold text-xs mr-3">
-              ${data.user.charAt(0)}
-            </div>
+          <div class="flex flex-col">
             <span class="font-semibold text-slate-200">${data.user}</span>
+            <span class="text-[10px] text-slate-500">${data.kelas || '-'} / ${data.jurusan || '-'}</span>
           </div>
         </td>
-        <td class="py-4 px-6 text-slate-300 text-sm font-medium">
-          ${data.kelas || '-'} / ${data.jurusan || '-'}
-        </td>
-        <td class="py-4 px-6 text-slate-400 text-sm">
+        <td class="py-4 px-6 text-slate-400 text-sm font-medium time-in">
           ${data.time}
+        </td>
+        <td class="py-4 px-6 text-slate-400 text-sm font-medium time-out">
+          -
         </td>
         <td class="py-4 px-6 text-right">
           <span class="px-2 py-1 rounded-md text-[10px] font-bold uppercase bg-green-500/10 text-green-500">

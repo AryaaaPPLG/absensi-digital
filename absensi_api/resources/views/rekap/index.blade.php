@@ -16,17 +16,19 @@
             </div>
 
             <div class="flex items-center space-x-4">
-                <form action="{{ route('rekap.index') }}" method="GET" class="flex items-center space-x-2">
+                <form action="{{ route('rekap.index') }}" method="GET" id="filterForm" class="flex items-center space-x-2">
+                    <input type="hidden" name="role" value="{{ $selectedRole }}">
                     <input type="date" name="date" value="{{ $date }}" onchange="this.form.submit()" class="bg-slate-100 border-none rounded-xl px-4 py-2 text-sm font-bold text-slate-600 focus:ring-2 focus:ring-blue-500 transition-all">
                 </form>
-                <form action="{{ route('rekap.bulk-hadir') }}" method="POST" onsubmit="return confirm('Tandai semua siswa hadir untuk tanggal ini?')">
+                <form action="{{ route('rekap.bulk-hadir') }}" method="POST" onsubmit="return confirm('Tandai semua {{ $selectedRole }} hadir untuk tanggal ini?')">
                     @csrf
                     <input type="hidden" name="date" value="{{ $date }}">
+                    <input type="hidden" name="role" value="{{ $selectedRole }}">
                     <button type="submit" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-xl text-sm font-bold flex items-center transition-all">
                         <i class="fas fa-check-double mr-2"></i> Set Semua Hadir
                     </button>
                 </form>
-                <a href="{{ route('rekap.export', ['date' => $date]) }}" class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center transition-all shadow-lg shadow-emerald-100">
+                <a href="{{ route('rekap.export', ['date' => $date, 'role' => $selectedRole]) }}" class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center transition-all shadow-lg shadow-emerald-100">
                     <i class="fas fa-file-export mr-2"></i> Export CSV
                 </a>
             </div>
@@ -34,16 +36,21 @@
     </nav>
 
     <main class="max-w-7xl mx-auto px-6 py-10">
-        @if(session('success'))
-            <div class="mb-8 p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-2xl flex items-center shadow-sm">
-                <i class="fas fa-check-circle mr-3 text-lg"></i>
-                <span class="font-medium">{{ session('success') }}</span>
-            </div>
-        @endif
+        <!-- Role Selection Tabs -->
+        <div class="flex space-x-4 mb-8">
+            <a href="{{ route('rekap.index', ['date' => $date, 'role' => 'siswa']) }}" 
+               class="px-6 py-3 rounded-2xl font-bold text-sm transition-all {{ $selectedRole == 'siswa' ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'bg-white text-slate-500 hover:bg-slate-50' }}">
+                <i class="fas fa-user-graduate mr-2"></i> Absensi Siswa
+            </a>
+            <a href="{{ route('rekap.index', ['date' => $date, 'role' => 'guru']) }}" 
+               class="px-6 py-3 rounded-2xl font-bold text-sm transition-all {{ $selectedRole == 'guru' ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'bg-white text-slate-500 hover:bg-slate-50' }}">
+                <i class="fas fa-chalkboard-teacher mr-2"></i> Absensi Guru
+            </a>
+        </div>
 
         <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
             <div class="p-8 border-b border-slate-50 flex justify-between items-center">
-                <h3 class="text-xl font-extrabold text-slate-800">Daftar Absensi Siswa</h3>
+                <h3 class="text-xl font-extrabold text-slate-800">Daftar Absensi {{ ucfirst($selectedRole) }}</h3>
                 <span class="text-sm font-bold text-slate-400 uppercase tracking-widest">{{ \Carbon\Carbon::parse($date)->format('d F Y') }}</span>
             </div>
             
@@ -55,6 +62,7 @@
                             <th class="py-6 px-8">Kelas</th>
                             <th class="py-6 px-8">Jurusan</th>
                             <th class="py-6 px-8">Jam Masuk</th>
+                            <th class="py-6 px-8">Jam Pulang</th>
                             <th class="py-6 px-8">Status</th>
                             <th class="py-6 px-8 text-right">Aksi</th>
                         </tr>
@@ -79,6 +87,11 @@
                             <td class="py-5 px-8">
                                 <span class="text-sm font-semibold {{ $item->time_in == '-' ? 'text-slate-300' : 'text-slate-600' }}">
                                     {{ $item->time_in }}
+                                </span>
+                            </td>
+                            <td class="py-5 px-8">
+                                <span class="text-sm font-semibold {{ $item->time_out == '-' ? 'text-slate-300' : 'text-slate-600' }}">
+                                    {{ $item->time_out }}
                                 </span>
                             </td>
                             <td class="py-5 px-8">
@@ -110,10 +123,10 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="6" class="py-20 text-center">
+                            <td colspan="7" class="py-20 text-center">
                                 <div class="flex flex-col items-center">
                                     <i class="fas fa-user-slash text-4xl text-slate-200 mb-4"></i>
-                                    <p class="text-slate-400 font-medium">Tidak ada data siswa ditemukan.</p>
+                                    <p class="text-slate-400 font-medium">Tidak ada data {{ $selectedRole }} ditemukan.</p>
                                 </div>
                             </td>
                         </tr>
@@ -126,6 +139,6 @@
 </div>
 
 <!-- Add FontAwesome for icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<script src="https://cdn.tailwindcss.com"></script>
+
+
 @endsection

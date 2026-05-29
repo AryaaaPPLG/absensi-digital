@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\SchoolClass;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
@@ -22,17 +23,17 @@ class RegisterController extends Controller
             'email' => 'required|unique:users',
             'password' => 'required|min:6',
             'role' => 'required|in:guru,siswa',
-            'kelas' => 'nullable|string',
-            'jurusan' => 'nullable|string',
+            'kelas' => 'nullable|string|required_with:jurusan',
+            'jurusan' => 'nullable|string|required_with:kelas',
         ]);
-       // sementara untuk debugging
-        // logger($request->all());
-        if (!$request->has('username')) {
-    return back()->withErrors(['username' => 'Field username tidak terkirim.']);
-}
 
-
-
+        $classId = null;
+        if ($request->filled('kelas') && $request->filled('jurusan')) {
+            $schoolClass = SchoolClass::firstOrCreate(
+                ['nama_kelas' => $request->kelas, 'jurusan' => $request->jurusan]
+            );
+            $classId = $schoolClass->id;
+        }
 
         $user = User::create([
             'name' => $request->name,
@@ -40,8 +41,7 @@ class RegisterController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
-            'kelas' => $request->kelas,
-            'jurusan' => $request->jurusan,
+            'class_id' => $classId,
         ]);
 
         Auth::login($user);

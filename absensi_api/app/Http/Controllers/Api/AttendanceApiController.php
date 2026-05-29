@@ -21,7 +21,7 @@ class AttendanceApiController extends Controller
         ]);
 
         $userId = $request->input('user_id');
-        $method = $request->input('method', 'face');
+        $method = $request->input('method', 'rfid');
         $status = $request->input('status', 'hadir');
 
         $date = Carbon::today()->toDateString();

@@ -6,57 +6,21 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Models\Attendance;
 use App\Models\User;
+use App\Models\Config;
+use App\Events\AttendanceScanned;
 use Carbon\Carbon;
 
 class AttendanceController extends Controller
 {
     public function showAbsensi()
     {
-        $recentAttendances = Attendance::with('user')
+        $recentAttendances = Attendance::with('user.schoolClass')
             ->whereDate('date', Carbon::today())
             ->latest()
             ->take(10)
             ->get();
 
         return view('absensi', compact('recentAttendances'));
-    }
-
-    public function faceAttendance(Request $request)
-    {
-        $response = Http::attach(
-            'image', file_get_contents($request->file('image')), 'face.jpg'
-        )->post('http://127.0.0.1:5000/api/recognize-face');
-
-        $data = $response->json();
-
-        if (isset($data['message']) && $data['message'] === 'Wajah cocok') {
-            $user = User::where('username', $data['username'])->first();
-            
-            if ($user) {
-                Attendance::create([
-                    'user_id' => $user->id,
-                    'date' => now()->toDateString(),
-                    'time_in' => now()->toTimeString(),
-                    'status' => 'hadir',
-                    'method' => 'face',
-                ]);
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Absensi berhasil dicatat',
-                    'user' => $user->name,
-                    'kelas' => $user->kelas,
-                    'jurusan' => $user->jurusan,
-                    'time' => now()->toTimeString(),
-                ]);
-            }
-        }
-
-        return response()->json([
-            'success' => false,
-            'message' => 'Wajah tidak dikenali atau pengguna tidak ditemukan',
-            'time' => now()->toDateTimeString(),
-        ], 404);
     }
 
     public function getRealtimeStats()
@@ -70,7 +34,7 @@ class AttendanceController extends Controller
             'alpha' => Attendance::whereDate('date', $today)->where('status', 'alpha')->count(),
         ];
 
-        $recentAttendances = Attendance::with('user')
+        $recentAttendances = Attendance::with('user.schoolClass')
             ->whereDate('date', $today)
             ->latest()
             ->take(10)
@@ -80,11 +44,11 @@ class AttendanceController extends Controller
                     'id' => $att->id,
                     'user_name' => $att->user->name,
                     'user_id' => $att->user->id,
-                    'kelas' => $att->user->kelas,
-                    'jurusan' => $att->user->jurusan,
+                    'kelas' => $att->user->schoolClass?->nama_kelas,
+                    'jurusan' => $att->user->schoolClass?->jurusan,
                     'time_in' => $att->time_in,
                     'status' => $att->status,
-                    'method' => $att->method ?? 'RFID',
+                    'method' => 'RFID',
                     'date' => $att->date->format('d M Y'),
                     'avatar' => "https://ui-avatars.com/api/?name=" . urlencode($att->user->name) . "&background=3b82f6&color=fff"
                 ];

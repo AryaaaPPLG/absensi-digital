@@ -13,7 +13,7 @@ return new class extends Migration {
             $table->date('date');
             $table->time('time_in')->nullable();
             $table->enum('status', ['hadir','alpha','izin','terlambat'])->default('hadir');
-            $table->string('method')->nullable(); // 'face' or 'qr' etc
+            $table->string('method')->nullable(); // 'rfid'
             $table->json('meta')->nullable();
             $table->timestamps();
 

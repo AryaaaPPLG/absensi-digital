@@ -25,15 +25,5 @@ class DatabaseSeeder extends Seeder
                 'role' => 'admin',
             ]
         );
-
-        User::updateOrCreate(
-            ['username' => 'testuser'],
-            [
-                'name' => 'Test User',
-                'email' => 'test@example.com',
-                'password' => Hash::make('password'),
-                'role' => 'siswa',
-            ]
-        );
     }
 }

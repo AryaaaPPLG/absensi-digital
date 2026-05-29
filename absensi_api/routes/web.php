@@ -8,6 +8,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\RekapController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AiInsightController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -30,6 +31,12 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/rekap/update', [RekapController::class, 'update'])->name('rekap.update');
     Route::post('/rekap/bulk-hadir', [RekapController::class, 'bulkHadir'])->name('rekap.bulk-hadir');
     Route::get('/rekap/export', [RekapController::class, 'export'])->name('rekap.export');
+    Route::post('/rekap/force-recap', [DashboardController::class, 'forceRecap'])->name('rekap.force-recap');
+    Route::post('/admin/toggle-pulang', [DashboardController::class, 'toggleClockOut'])->name('admin.toggle-pulang');
+
+    // AI Insight
+    Route::get('/admin/ai-insight', [AiInsightController::class, 'index'])->name('admin.ai-insight');
+    Route::post('/admin/ai-insight/generate', [AiInsightController::class, 'generateDailySummary'])->name('admin.ai-insight.generate');
 
     // User Management (Admin Only)
     Route::get('/users', [UserController::class, 'index'])->name('users.index');

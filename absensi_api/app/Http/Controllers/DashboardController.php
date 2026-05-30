@@ -28,7 +28,8 @@ class DashboardController extends Controller
                 'recent_attendances' => Attendance::with('user.schoolClass')
                     ->latest()
                     ->take(10)
-                    ->get()
+                    ->get(),
+                'system_logs' => \App\Models\ActivityLog::latest()->take(5)->get()
             ];
 
             return view('dashboard', compact('user', 'stats', 'isClockOutOpen'));
@@ -61,6 +62,14 @@ class DashboardController extends Controller
         Config::set('allow_clock_out', $new);
 
         $status = $new === '1' ? 'DIBUKA' : 'DITUTUP';
+        
+        \App\Models\ActivityLog::log(
+            'Clock Out Toggled',
+            "Admin telah {$status} akses absensi pulang.",
+            $new === '1' ? 'fa-door-open' : 'fa-door-closed',
+            $new === '1' ? 'emerald' : 'rose'
+        );
+
         return back()->with('success', "Gerbang absensi pulang berhasil $status.");
     }
 

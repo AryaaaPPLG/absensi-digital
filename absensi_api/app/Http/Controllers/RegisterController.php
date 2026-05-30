@@ -44,6 +44,14 @@ class RegisterController extends Controller
             'class_id' => $classId,
         ]);
 
+        \App\Models\ActivityLog::log(
+            'User Registered',
+            "Pengguna baru bernama {$user->name} ({$user->role}) telah mendaftar.",
+            'fa-user-plus',
+            'emerald',
+            $user->id
+        );
+
         Auth::login($user);
 
         return redirect('/register-rfid');

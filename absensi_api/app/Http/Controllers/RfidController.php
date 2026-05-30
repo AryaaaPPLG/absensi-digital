@@ -31,6 +31,13 @@ class RfidController extends Controller
         $user->rfid_uid = $request->rfid_uid;
         $user->save();
 
+        \App\Models\ActivityLog::log(
+            'RFID Card Registered',
+            "Pengguna {$user->name} telah mendaftarkan kartu RFID baru.",
+            'fa-id-card',
+            'indigo'
+        );
+
         return redirect()->route('dashboard')->with('success', 'RFID Card successfully registered!');
     }
 

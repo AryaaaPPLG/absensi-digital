@@ -55,4 +55,4 @@ Menggunakan kecerdasan buatan untuk memberikan ringkasan perilaku:
 3. Gunakan font **Plus Jakarta Sans** (sudah terpasang) untuk pengalaman visual terbaik.
 
 ---
-*Dibuat dengan ❤️ oleh RPL SMEMSA - 2026*
+*Dibuat oleh RPL SMEMSA - 2026*

@@ -51,6 +51,36 @@
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }
+    .swal2-rfid-popup {
+        border-radius: 32px !important;
+        padding: 30px !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        box-shadow: 0 28px 90px rgba(2, 6, 23, 0.38) !important;
+    }
+    .swal2-rfid-title {
+        color: #0f172a !important;
+        font-size: 1.45rem !important;
+        font-weight: 900 !important;
+        letter-spacing: -0.015em !important;
+    }
+    .swal2-rfid-html,
+    .swal2-rfid-popup .swal2-html-container {
+        color: #475569 !important;
+        margin-top: 10px !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+    }
+    .swal2-rfid-confirm {
+        border-radius: 16px !important;
+        padding: 13px 28px !important;
+        font-size: 0.75rem !important;
+        font-weight: 900 !important;
+        letter-spacing: 0.16em !important;
+        text-transform: uppercase !important;
+        box-shadow: 0 14px 28px rgba(37, 99, 235, 0.28) !important;
+    }
+    .swal2-timer-progress-bar {
+        background: linear-gradient(90deg, #22c55e, #2563eb) !important;
+    }
   </style>
   @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -164,13 +194,27 @@
   </div>
 
   <script>
+    // Referensi ke elemen-elemen HTML yang dibutuhkan
     const rfidInput = document.getElementById('rfidInput');
     const scannerArea = document.getElementById('scannerArea');
     const instructionText = document.getElementById('instructionText');
     const activityBody = document.getElementById('activityBody');
     const emptyState = document.getElementById('emptyState');
     const realtimeClock = document.getElementById('realtimeClock');
+    const RfidAlert = Swal.mixin({
+      background: '#ffffff',
+      color: '#1e293b',
+      confirmButtonColor: '#2563eb',
+      buttonsStyling: true,
+      customClass: {
+        popup: 'swal2-rfid-popup',
+        title: 'swal2-rfid-title',
+        htmlContainer: 'swal2-rfid-html',
+        confirmButton: 'swal2-rfid-confirm'
+      }
+    });
 
+    // Fungsi untuk memperbarui jam digital secara real-time
     function updateClock() {
       const now = new Date();
       const options = { 
@@ -181,25 +225,40 @@
       realtimeClock.textContent = now.toLocaleDateString('id-ID', options) + ' WIB';
     }
     
+    // Jalankan jam setiap 1 detik
     setInterval(updateClock, 1000);
     updateClock();
 
+    // TEKNIK PENTING: Paksa input RFID selalu fokus (focus)
+    // Karena scanner RFID bekerja seperti keyboard yang mengetik cepat lalu menekan Enter.
+    // Jika input tidak fokus, data scanner tidak akan tertangkap.
     document.addEventListener('click', () => rfidInput.focus());
     window.onload = () => rfidInput.focus();
 
+    function escapeHtml(value) {
+      const div = document.createElement('div');
+      div.textContent = value ?? '';
+      return div.innerHTML;
+    }
+
+    // Menangkap input dari scanner RFID
     rfidInput.addEventListener('keypress', async (e) => {
+      // Scanner RFID biasanya mengirimkan tombol 'Enter' di akhir pembacaan UID
       if (e.key === 'Enter') {
         const uid = rfidInput.value.trim();
-        if (uid) processScan(uid);
-        rfidInput.value = '';
+        if (uid) processScan(uid); // Kirim UID ke server untuk diproses
+        rfidInput.value = ''; // Kosongkan input agar siap untuk scan berikutnya
       }
     });
 
+    // Fungsi untuk mengirim data UID ke server via API
     async function processScan(uid) {
+      // Efek visual: beri animasi pada area scanner saat memproses
       scannerArea.classList.add('scan-active');
       instructionText.textContent = 'Memproses...';
       
       try {
+        // Mengirim data UID ke RfidController@scan melalui route API
         const response = await fetch('/api/attendance/scan', {
           method: 'POST',
           headers: {
@@ -213,14 +272,17 @@
         const data = await response.json();
 
         if (response.ok) {
+          // Jika Berhasil: Tampilkan notifikasi SweetAlert sukses
           showStatus('success', data);
-          updateActivityRow(data);
+          updateActivityRow(data); // Tambahkan baris baru ke tabel aktivitas tanpa refresh
         } else {
+          // Jika Gagal (Kartu tidak terdaftar/sudah absen): Tampilkan notifikasi error
           showStatus('error', data);
         }
       } catch (error) {
         showStatus('error', { message: 'Terjadi kesalahan koneksi sistem.' });
       } finally {
+        // Kembalikan status tampilan ke semula setelah 2 detik
         setTimeout(() => {
           scannerArea.classList.remove('scan-active');
           instructionText.textContent = 'Menunggu Kartu...';
@@ -231,47 +293,46 @@
     function showStatus(type, data) {
       if (type === 'success') {
         const isOut = data.type === 'out';
-        Swal.fire({
+        const userName = escapeHtml(data.user);
+        const kelas = escapeHtml(data.kelas || '-');
+        const jurusan = escapeHtml(data.jurusan || '-');
+        const scanTime = escapeHtml(data.time);
+        const message = escapeHtml(data.message || 'Absensi berhasil diproses.');
+
+        RfidAlert.fire({
           icon: 'success',
-          title: isOut ? 'Berhasil Pulang' : 'Berhasil Hadir',
+          title: isOut ? 'Absensi Pulang Tercatat' : 'Absensi Masuk Tercatat',
           html: `
-            <div class="text-left mt-4 p-5 bg-slate-50 rounded-[1.5rem] border border-slate-100">
-              <div class="flex justify-between mb-2">
-                <span class="text-slate-400 text-[10px] font-black uppercase tracking-widest">Nama</span>
-                <span class="text-slate-900 font-black">${data.user}</span>
+            <div style="text-align:left;margin-top:18px;padding:20px;border-radius:24px;background:#f8fafc;border:1px solid #e2e8f0;">
+              <div style="display:flex;justify-content:space-between;gap:18px;margin-bottom:12px;">
+                <span style="color:#94a3b8;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.16em;">Nama</span>
+                <span style="color:#0f172a;font-weight:900;text-align:right;">${userName}</span>
               </div>
-              <div class="flex justify-between mb-2">
-                <span class="text-slate-400 text-[10px] font-black uppercase tracking-widest">Kelas</span>
-                <span class="text-slate-700 font-bold">${data.kelas || '-'} / ${data.jurusan || '-'}</span>
+              <div style="display:flex;justify-content:space-between;gap:18px;margin-bottom:12px;">
+                <span style="color:#94a3b8;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.16em;">Kelas</span>
+                <span style="color:#334155;font-weight:800;text-align:right;">${kelas} / ${jurusan}</span>
               </div>
-              <div class="flex justify-between pt-2 border-t border-slate-100">
-                <span class="text-slate-400 text-[10px] font-black uppercase tracking-widest">Waktu</span>
-                <span class="text-blue-600 font-black">${data.time}</span>
+              <div style="display:flex;justify-content:space-between;gap:18px;padding-top:12px;border-top:1px solid #e2e8f0;">
+                <span style="color:#94a3b8;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.16em;">Waktu</span>
+                <span style="color:#2563eb;font-weight:900;text-align:right;">${scanTime} WIB</span>
               </div>
             </div>
-            <p class="mt-4 text-slate-500 font-bold text-sm uppercase tracking-tight">${data.message}</p>
+            <p style="margin-top:16px;color:#64748b;font-size:13px;font-weight:800;line-height:1.6;">${message}</p>
           `,
           showConfirmButton: false,
-          timer: 3500,
-          timerProgressBar: true,
-          background: '#ffffff',
-          color: '#1e293b',
-          customClass: { popup: 'rounded-[2.5rem] border-none shadow-2xl' }
+          timer: 3300,
+          timerProgressBar: true
         });
       } else {
-        const isWarning = data.message.includes('sudah');
-        Swal.fire({
+        const message = data.message || 'Scan tidak dapat diproses. Silakan coba lagi.';
+        const isWarning = message.toLowerCase().includes('sudah');
+        const safeMessage = escapeHtml(message);
+
+        RfidAlert.fire({
           icon: isWarning ? 'warning' : 'error',
-          title: isWarning ? 'Peringatan' : 'Gagal Absen',
-          text: data.message,
-          confirmButtonText: 'MENGERTI',
-          confirmButtonColor: '#3b82f6',
-          background: '#ffffff',
-          color: '#1e293b',
-          customClass: {
-            popup: 'rounded-[2.5rem] border-none shadow-2xl',
-            confirmButton: 'rounded-2xl px-8 py-3 font-black text-xs tracking-[0.2em]'
-          }
+          title: isWarning ? 'Absensi Sudah Tercatat' : 'Scan Tidak Berhasil',
+          html: `<p style="margin:0;color:#64748b;font-weight:700;line-height:1.6;">${safeMessage}</p>`,
+          confirmButtonText: 'Mengerti'
         });
       }
     }

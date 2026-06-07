@@ -53,7 +53,9 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the class that owns the user.
+     * @KISI-KISI: DATABASE & ELOQUENT ORM (Relasi Tabel)
+     * Relasi 'belongsTo' (One to Many - Inverse)
+     * Menunjukkan bahwa User (Siswa) ini dimiliki oleh satu Kelas.
      */
     public function schoolClass(): BelongsTo
     {
@@ -61,7 +63,9 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the shift that owns the user.
+     * @KISI-KISI: DATABASE & ELOQUENT ORM (Relasi Tabel)
+     * Relasi 'belongsTo'
+     * User (Siswa/Guru) memiliki satu Shift kerja/sekolah.
      */
     public function shift(): BelongsTo
     {
@@ -69,7 +73,9 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the attendances for the user.
+     * @KISI-KISI: DATABASE & ELOQUENT ORM (Relasi Tabel)
+     * Relasi 'hasMany' (One to Many)
+     * Satu User bisa memiliki banyak catatan kehadiran (Attendance).
      */
     public function attendances(): HasMany
     {
@@ -77,7 +83,9 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the leaves for the user.
+     * @KISI-KISI: DATABASE & ELOQUENT ORM (Relasi Tabel)
+     * Relasi 'hasMany'
+     * Satu User bisa mengajukan banyak Izin (Leave).
      */
     public function leaves(): HasMany
     {

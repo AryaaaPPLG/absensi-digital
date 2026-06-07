@@ -8,6 +8,11 @@ use App\Events\AttendanceScanned;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
+/**
+ * @KISI-KISI: ARSITEKTUR MVC (Controller)
+ * RfidController adalah bagian dari 'Controller' dalam pola MVC.
+ * Ia bertugas sebagai jembatan antara Request (User) dan Database (Model).
+ */
 class RfidController extends Controller
 {
     /**
@@ -20,17 +25,29 @@ class RfidController extends Controller
 
     /**
      * Store the RFID UID for the authenticated user.
+     * Fungsi ini digunakan untuk mendaftarkan ID unik kartu RFID ke akun user.
      */
     public function register(Request $request)
     {
+        /**
+         * @KISI-KISI: VALIDASI DATA (Validation Rules)
+         * Memastikan input 'rfid_uid' ada dan belum pernah dipakai (unique).
+         */
         $request->validate([
             'rfid_uid' => 'required|string|unique:users,rfid_uid',
         ]);
 
+        // Ambil data user yang sedang login
         $user = auth()->user();
         $user->rfid_uid = $request->rfid_uid;
+        
+        /**
+         * @KISI-KISI: ELOQUENT ORM (save)
+         * Menggunakan metode save() untuk menyimpan perubahan ke database.
+         */
         $user->save();
 
+        // Catat aktivitas registrasi kartu ke dalam log
         \App\Models\ActivityLog::log(
             'RFID Card Registered',
             "Pengguna {$user->name} telah mendaftarkan kartu RFID baru.",
@@ -43,16 +60,22 @@ class RfidController extends Controller
 
     /**
      * Handle RFID scanning for attendance.
-     * This endpoint will likely be called by an external RFID reader device.
+     * Fungsi utama untuk memproses tap kartu RFID di terminal absensi.
      */
     public function scan(Request $request)
     {
+        // Pastikan UID kartu dikirim dalam request
         $request->validate([
             'rfid_uid' => 'required|string',
         ]);
 
+        /**
+         * @KISI-KISI: ELOQUENT ORM (SELECT Query)
+         * Mencari user berdasarkan rfid_uid menggunakan metode 'where' dan 'first'.
+         */
         $user = User::with('schoolClass')->where('rfid_uid', $request->rfid_uid)->first();
 
+        // Jika kartu tidak ditemukan/tidak terdaftar, kirim respon error 404
         if (!$user) {
             return response()->json([
                 'success' => false,
@@ -62,12 +85,17 @@ class RfidController extends Controller
 
         $today = Carbon::today();
         
-        // Check if user already scanned today
+        /**
+         * @KISI-KISI: ELOQUENT ORM (Pengecekan Data)
+         * Cek apakah user ini sudah melakukan absensi hari ini.
+         */
         $attendance = Attendance::where('user_id', $user->id)
             ->where('date', $today)
             ->first();
 
+        // JIKA SUDAH ABSEN (Artinya proses selanjutnya adalah Absen Pulang)
         if ($attendance) {
+            // Jika sudah ada jam pulang, berarti dia sudah tap 2x sebelumnya
             if ($attendance->time_out) {
                 return response()->json([
                     'success' => false,
@@ -79,7 +107,7 @@ class RfidController extends Controller
                 ], 400);
             }
 
-            // Check if clock out is allowed (Gate check)
+            // Validasi: Cek apakah Admin sudah mengizinkan/membuka akses untuk pulang
             if (\App\Models\Config::get('allow_clock_out', '0') !== '1') {
                 return response()->json([
                     'success' => false,
@@ -90,11 +118,15 @@ class RfidController extends Controller
                 ], 403);
             }
 
+            /**
+             * @KISI-KISI: ELOQUENT ORM (update)
+             * Memperbarui data kolom time_out.
+             */
             $attendance->update([
                 'time_out' => Carbon::now()->toTimeString()
             ]);
 
-            // Trigger Real-time Event
+            // Trigger Event Real-time: Agar dashboard/layar terminal langsung terupdate otomatis
             event(new AttendanceScanned($attendance));
 
             return response()->json([
@@ -109,7 +141,10 @@ class RfidController extends Controller
             ]);
         }
 
-        // Record attendance
+        /**
+         * @KISI-KISI: ELOQUENT ORM (create)
+         * Menambahkan data baru ke tabel attendances (Absen Masuk).
+         */
         $attendance = Attendance::create([
             'user_id' => $user->id,
             'date' => $today,
@@ -118,7 +153,7 @@ class RfidController extends Controller
             'method' => 'rfid',
         ]);
 
-        // Trigger Real-time Event
+        // Trigger Event Real-time untuk notifikasi di layar
         event(new AttendanceScanned($attendance));
 
         return response()->json([

@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+    
+     <!-- * @KISI-KISI: BLADE TEMPLATING (yield)
+     * yield digunakan sebagai placeholder konten yang akan diisi oleh child view.
+     */ -->
     <title>@yield('title', 'Absensi Digital') - Sistem Absensi RFID</title>
 
     <!-- Fonts -->
@@ -38,6 +42,59 @@
         .card-shadow {
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
         }
+        .swal2-modern-popup {
+            border-radius: 28px !important;
+            padding: 28px !important;
+            font-family: 'Plus Jakarta Sans', sans-serif !important;
+            box-shadow: 0 24px 70px rgba(15, 23, 42, 0.18) !important;
+        }
+        .swal2-modern-title {
+            color: #0f172a !important;
+            font-size: 1.35rem !important;
+            font-weight: 800 !important;
+            letter-spacing: -0.01em !important;
+        }
+        .swal2-modern-html,
+        .swal2-modern-popup .swal2-html-container {
+            color: #64748b !important;
+            font-size: 0.95rem !important;
+            font-weight: 600 !important;
+            line-height: 1.6 !important;
+        }
+        .swal2-modern-confirm {
+            border-radius: 14px !important;
+            padding: 12px 24px !important;
+            font-weight: 800 !important;
+            box-shadow: 0 10px 24px rgba(37, 99, 235, 0.28) !important;
+        }
+        .swal2-modern-cancel {
+            border-radius: 14px !important;
+            padding: 12px 24px !important;
+            font-weight: 800 !important;
+        }
+        .swal2-timer-progress-bar {
+            background: linear-gradient(90deg, #2563eb, #22c55e) !important;
+        }
+        .profile-menu {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transform: translateY(0.5rem) scale(0.98);
+        }
+        .profile-menu.is-open {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transform: translateY(0) scale(1);
+        }
+        @media (hover: hover) and (pointer: fine) {
+            .profile-menu-wrap:hover .profile-menu {
+                opacity: 1;
+                visibility: visible;
+                pointer-events: auto;
+                transform: translateY(0) scale(1);
+            }
+        }
     </style>
     @yield('styles')
 </head>
@@ -56,28 +113,50 @@
                     </a>
                 </div>
 
-                <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-2 sm:space-x-4">
                     <!-- Realtime Clock -->
                     <div class="hidden md:flex flex-col items-end mr-4 px-4 py-1.5 bg-slate-50 border border-slate-200 rounded-2xl">
                         <span id="navClock" class="text-sm font-black text-slate-800 leading-none"></span>
                         <span id="navDate" class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1"></span>
                     </div>
 
-                    <div class="flex items-center space-x-3 pl-4 border-l border-slate-200">
-                        <div class="flex flex-col items-end mr-1">
+                    <div class="flex items-center space-x-2 sm:space-x-3 sm:pl-4 sm:border-l sm:border-slate-200">
+                        <div class="hidden sm:flex flex-col items-end mr-1 max-w-36">
                             <span class="text-sm font-bold text-slate-800">{{ Auth::user()->name }}</span>
                             <span class="text-[10px] font-black text-blue-600 uppercase tracking-widest">{{ Auth::user()->role }}</span>
                         </div>
                         
-                        <div class="relative group">
-                            <button class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-blue-50 hover:text-blue-600 transition-colors border border-slate-200">
+                        <div class="relative profile-menu-wrap" id="profileMenuWrap">
+                            <button
+                                type="button"
+                                id="profileMenuButton"
+                                class="w-11 h-11 sm:w-10 sm:h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-blue-50 hover:text-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100 active:scale-95 transition-all border border-slate-200"
+                                aria-haspopup="true"
+                                aria-expanded="false"
+                                aria-controls="profileMenu"
+                            >
                                 <i class="fas fa-user"></i>
                             </button>
-                            <div class="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-right group-hover:translate-y-0 translate-y-2">
-                                <a href="{{ route('dashboard') }}" class="block px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-blue-600">Dashboard</a>
+                            <div
+                                id="profileMenu"
+                                class="profile-menu absolute right-0 top-full z-[60] mt-3 w-56 max-w-[calc(100vw-2rem)] origin-top-right rounded-2xl border border-slate-100 bg-white py-2 shadow-xl transition-all duration-200"
+                            >
+                                <div class="sm:hidden px-4 py-3 border-b border-slate-100">
+                                    <span class="block truncate text-sm font-bold text-slate-800">{{ Auth::user()->name }}</span>
+                                    <span class="block text-[10px] font-black text-blue-600 uppercase tracking-widest mt-0.5">{{ Auth::user()->role }}</span>
+                                </div>
+                                <a href="{{ route('dashboard') }}" class="flex min-h-11 items-center px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-blue-600 active:bg-slate-100">
+                                    <i class="fas fa-gauge-high mr-3 text-xs text-slate-400"></i>
+                                    Dashboard
+                                </a>
                                 <form action="{{ route('logout') }}" method="POST">
+                                    <!-- /**
+                                     * KISI-KISI: KEAMANAN SISTEM (csrf)
+                                     * Direktif csrf akan menghasilkan input hidden berisi token keamanan.
+                                     */ -->
                                     @csrf
-                                    <button type="submit" class="w-full text-left px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors">
+                                    <button type="submit" class="flex min-h-11 w-full items-center px-4 py-2 text-left text-sm font-bold text-red-600 hover:bg-red-50 active:bg-red-100 transition-colors">
+                                        <i class="fas fa-arrow-right-from-bracket mr-3 text-xs"></i>
                                         Keluar
                                     </button>
                                 </form>
@@ -91,6 +170,10 @@
     @endauth
 
     <main class="flex-grow">
+        <!-- /**
+         * KISI-KISI: BLADE TEMPLATING (yield)
+         * Menampilkan konten utama halaman.
+         */ -->
         @yield('content')
     </main>
 
@@ -104,10 +187,10 @@
                     <span class="text-lg font-extrabold tracking-tight text-slate-800">Absensi<span class="text-blue-600">Digital</span></span>
                 </div>
                 <p class="text-sm font-bold text-slate-400 uppercase tracking-widest">
-                    &copy; 2026 Powered by <span class="text-slate-600">RPL SMEMSA</span>
+                    &copy; 2026 Powered by <span class="text-slate-600">RPL SMEMSA (Three Devs)</span>
                 </p>
                 <div class="flex space-x-6">
-                    <a href="#" class="text-slate-400 hover:text-blue-600 transition-colors"><i class="fab fa-github"></i></a>
+                    <a href="https://github.com/aryaaapplg" class="text-slate-400 hover:text-blue-600 transition-colors"><i class="fab fa-github"></i></a>
                     <a href="#" class="text-slate-400 hover:text-blue-600 transition-colors"><i class="fab fa-instagram"></i></a>
                 </div>
             </div>
@@ -136,26 +219,74 @@
         setInterval(updateNavClock, 1000);
         updateNavClock();
 
+        const profileMenuWrap = document.getElementById('profileMenuWrap');
+        const profileMenuButton = document.getElementById('profileMenuButton');
+        const profileMenu = document.getElementById('profileMenu');
+
+        if (profileMenuWrap && profileMenuButton && profileMenu) {
+            const setProfileMenuOpen = (isOpen) => {
+                profileMenu.classList.toggle('is-open', isOpen);
+                profileMenuButton.setAttribute('aria-expanded', String(isOpen));
+            };
+
+            profileMenuButton.addEventListener('click', (event) => {
+                event.stopPropagation();
+                setProfileMenuOpen(!profileMenu.classList.contains('is-open'));
+            });
+
+            profileMenu.addEventListener('click', (event) => {
+                event.stopPropagation();
+            });
+
+            document.addEventListener('click', () => {
+                setProfileMenuOpen(false);
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') {
+                    setProfileMenuOpen(false);
+                    profileMenuButton.focus();
+                }
+            });
+        }
+
+        const AppAlert = Swal.mixin({
+            buttonsStyling: true,
+            confirmButtonColor: '#2563eb',
+            cancelButtonColor: '#94a3b8',
+            showClass: {
+                popup: 'swal2-show'
+            },
+            hideClass: {
+                popup: 'swal2-hide'
+            },
+            customClass: {
+                popup: 'swal2-modern-popup',
+                title: 'swal2-modern-title',
+                htmlContainer: 'swal2-modern-html',
+                confirmButton: 'swal2-modern-confirm',
+                cancelButton: 'swal2-modern-cancel'
+            }
+        });
+
         @if(session('success'))
-            Swal.fire({
+            AppAlert.fire({
                 icon: 'success',
-                title: 'Berhasil!',
-                text: "{{ session('success') }}",
+                title: 'Berhasil Disimpan',
+                text: @json(session('success')),
                 showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true,
-                customClass: { popup: 'rounded-3xl' }
+                timer: 2600,
+                timerProgressBar: true
             });
         @endif
 
         @if(session('error'))
-            Swal.fire({
+            AppAlert.fire({
                 icon: 'error',
-                title: 'Gagal!',
-                text: "{{ session('error') }}",
+                title: 'Aksi Belum Berhasil',
+                text: @json(session('error')),
                 showConfirmButton: true,
-                confirmButtonColor: '#3b82f6',
-                customClass: { popup: 'rounded-3xl', confirmButton: 'rounded-xl px-6 py-2' }
+                confirmButtonText: 'Mengerti'
             });
         @endif
     </script>

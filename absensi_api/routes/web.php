@@ -10,15 +10,29 @@ use App\Http\Controllers\RekapController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AiInsightController;
 
+/**
+ * @KISI-KISI: ROUTING (web.php)
+ * Rute dasar untuk halaman awal. Menggunakan fungsi anonim (Closure).
+ */
 Route::get('/', function () {
     return view('welcome');
 });
 
+/**
+ * @KISI-KISI: ROUTING (Pendaftaran Rute & Parameter)
+ * Rute untuk Login. Mengarahkan ke AuthController.
+ */
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 
-
+/**
+ * @KISI-KISI: MIDDLEWARE & REQUEST LIFECYCLE
+ * Middleware 'auth' berfungsi sebagai filter: Hanya user yang sudah login 
+ * yang bisa mengakses rute di dalam grup ini.
+ */
 Route::middleware(['auth'])->group(function () {
+    
+    // @KISI-KISI: LOGIC HANDLING (Controller)
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     
@@ -26,7 +40,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/register-rfid', [RfidController::class, 'showRegistrationForm'])->name('rfid.register.view');
     Route::post('/register-rfid', [RfidController::class, 'register'])->name('rfid.register');
 
-    // Rekap Absensi
+    // Rekap Absensi (Implementasi CRUD: Read & Update)
     Route::get('/rekap', [RekapController::class, 'index'])->name('rekap.index');
     Route::post('/rekap/update', [RekapController::class, 'update'])->name('rekap.update');
     Route::post('/rekap/bulk-hadir', [RekapController::class, 'bulkHadir'])->name('rekap.bulk-hadir');
@@ -38,14 +52,19 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/ai-insight', [AiInsightController::class, 'index'])->name('admin.ai-insight');
     Route::post('/admin/ai-insight/generate', [AiInsightController::class, 'generateDailySummary'])->name('admin.ai-insight.generate');
 
-    // User Management (Admin Only)
+    /**
+     * @KISI-KISI: RESOURCE CONTROLLER (CRUD User)
+     * Mengelola data user menggunakan metode standar: Index, Store, Update, Destroy.
+     */
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::post('/users', [UserController::class, 'store'])->name('users.store');
     Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 });
 
+// Rute Terminal Absensi (Halaman yang sering dibuka di alat/scanner)
 Route::get('/absensi', [AttendanceController::class, 'showAbsensi'])->name('absensi.view');
 
+// Rute Registrasi Akun Baru
 Route::get('/register', [RegisterController::class, 'showForm'])->name('register');
 Route::post('/register', [RegisterController::class, 'register'])->name('register.post');

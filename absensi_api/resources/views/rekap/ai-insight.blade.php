@@ -95,6 +95,31 @@
             0%, 100% { opacity: 1; }
             50% { opacity: .5; }
         }
+        .swal2-insight-popup {
+            border-radius: 28px !important;
+            padding: 28px !important;
+            font-family: 'Plus Jakarta Sans', sans-serif !important;
+            box-shadow: 0 24px 70px rgba(15, 23, 42, 0.18) !important;
+        }
+        .swal2-insight-title {
+            color: #0f172a !important;
+            font-size: 1.35rem !important;
+            font-weight: 900 !important;
+            letter-spacing: -0.01em !important;
+        }
+        .swal2-insight-html,
+        .swal2-insight-popup .swal2-html-container {
+            color: #64748b !important;
+            font-size: 0.95rem !important;
+            font-weight: 600 !important;
+            line-height: 1.6 !important;
+        }
+        .swal2-insight-confirm {
+            border-radius: 14px !important;
+            padding: 12px 24px !important;
+            font-weight: 900 !important;
+            box-shadow: 0 10px 24px rgba(37, 99, 235, 0.28) !important;
+        }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -231,6 +256,16 @@
         const statTotal = document.getElementById('statTotal');
         const statHadir = document.getElementById('statHadir');
         const statTerlambat = document.getElementById('statTerlambat');
+        const InsightAlert = Swal.mixin({
+            confirmButtonColor: '#2563eb',
+            buttonsStyling: true,
+            customClass: {
+                popup: 'swal2-insight-popup',
+                title: 'swal2-insight-title',
+                htmlContainer: 'swal2-insight-html',
+                confirmButton: 'swal2-insight-confirm'
+            }
+        });
 
         generateBtn.addEventListener('click', async () => {
             // Show loading
@@ -265,20 +300,22 @@
                     loadingState.classList.add('hidden');
                     resultArea.classList.remove('hidden');
                 } else {
-                    Swal.fire({
+                    InsightAlert.fire({
                         icon: 'error',
-                        title: 'Gagal',
-                        text: data.message || 'Gagal menghasilkan insight.'
+                        title: 'Insight Belum Bisa Dibuat',
+                        text: data.message || 'Data absensi belum dapat dianalisis saat ini.',
+                        confirmButtonText: 'Mengerti'
                     });
                     initialState.classList.remove('hidden');
                     loadingState.classList.add('hidden');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                Swal.fire({
+                InsightAlert.fire({
                     icon: 'error',
-                    title: 'Error',
-                    text: 'Terjadi kesalahan pada server.'
+                    title: 'Koneksi Server Bermasalah',
+                    text: 'Permintaan ke server gagal diproses. Periksa koneksi atau coba beberapa saat lagi.',
+                    confirmButtonText: 'Coba Lagi'
                 });
                 initialState.classList.remove('hidden');
                 loadingState.classList.add('hidden');

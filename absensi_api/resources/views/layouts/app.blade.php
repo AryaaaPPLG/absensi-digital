@@ -11,28 +11,16 @@
      */ -->
     <title>@yield('title', 'Absensi Digital') - Sistem Absensi RFID</title>
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #f8fafc;
-        }
         .glass-nav {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+            background: rgba(255, 255, 255, 0.78);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.75);
+            box-shadow: 0 14px 40px rgba(15, 23, 42, 0.04);
         }
         .text-gradient {
             background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
@@ -98,7 +86,11 @@
     </style>
     @yield('styles')
 </head>
-<body class="antialiased min-h-screen flex flex-col">
+<body class="antialiased min-h-screen flex flex-col overflow-x-hidden">
+    <div class="pointer-events-none fixed inset-0 -z-10 opacity-80">
+        <div class="absolute left-1/2 top-0 h-96 w-[44rem] -translate-x-1/2 rounded-full bg-blue-100/60 blur-3xl"></div>
+        <div class="absolute bottom-20 right-0 h-80 w-80 rounded-full bg-emerald-100/50 blur-3xl"></div>
+    </div>
     @auth
     <!-- Navbar for Authenticated Users -->
     <nav class="sticky top-0 z-50 glass-nav">
@@ -106,7 +98,7 @@
             <div class="flex justify-between h-20">
                 <div class="flex items-center">
                     <a href="{{ route('dashboard') }}" class="flex items-center space-x-3 group">
-                        <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200 group-hover:rotate-6 transition-transform">
+                        <div class="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center shadow-lg shadow-slate-200 group-hover:rotate-6 transition-transform">
                             <i class="fas fa-fingerprint text-white text-xl"></i>
                         </div>
                         <span class="text-xl font-extrabold tracking-tight text-slate-800">Absensi<span class="text-blue-600">Digital</span></span>
@@ -115,7 +107,7 @@
 
                 <div class="flex items-center space-x-2 sm:space-x-4">
                     <!-- Realtime Clock -->
-                    <div class="hidden md:flex flex-col items-end mr-4 px-4 py-1.5 bg-slate-50 border border-slate-200 rounded-2xl">
+                    <div class="hidden md:flex flex-col items-end mr-4 px-4 py-1.5 bg-white/70 border border-slate-200 rounded-2xl shadow-sm">
                         <span id="navClock" class="text-sm font-black text-slate-800 leading-none"></span>
                         <span id="navDate" class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1"></span>
                     </div>
@@ -177,7 +169,7 @@
         @yield('content')
     </main>
 
-    <footer class="bg-white border-t border-slate-200 py-12 mt-20">
+    <footer class="bg-white/80 backdrop-blur border-t border-slate-200 py-12 mt-20">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
                 <div class="flex items-center space-x-3">
@@ -250,45 +242,47 @@
             });
         }
 
-        const AppAlert = Swal.mixin({
-            buttonsStyling: true,
-            confirmButtonColor: '#2563eb',
-            cancelButtonColor: '#94a3b8',
-            showClass: {
-                popup: 'swal2-show'
-            },
-            hideClass: {
-                popup: 'swal2-hide'
-            },
-            customClass: {
-                popup: 'swal2-modern-popup',
-                title: 'swal2-modern-title',
-                htmlContainer: 'swal2-modern-html',
-                confirmButton: 'swal2-modern-confirm',
-                cancelButton: 'swal2-modern-cancel'
-            }
+        document.addEventListener('DOMContentLoaded', () => {
+            const AppAlert = window.Swal.mixin({
+                buttonsStyling: true,
+                confirmButtonColor: '#2563eb',
+                cancelButtonColor: '#94a3b8',
+                showClass: {
+                    popup: 'swal2-show'
+                },
+                hideClass: {
+                    popup: 'swal2-hide'
+                },
+                customClass: {
+                    popup: 'swal2-modern-popup',
+                    title: 'swal2-modern-title',
+                    htmlContainer: 'swal2-modern-html',
+                    confirmButton: 'swal2-modern-confirm',
+                    cancelButton: 'swal2-modern-cancel'
+                }
+            });
+
+            @if(session('success'))
+                AppAlert.fire({
+                    icon: 'success',
+                    title: 'Berhasil Disimpan',
+                    text: @json(session('success')),
+                    showConfirmButton: false,
+                    timer: 2600,
+                    timerProgressBar: true
+                });
+            @endif
+
+            @if(session('error'))
+                AppAlert.fire({
+                    icon: 'error',
+                    title: 'Aksi Belum Berhasil',
+                    text: @json(session('error')),
+                    showConfirmButton: true,
+                    confirmButtonText: 'Mengerti'
+                });
+            @endif
         });
-
-        @if(session('success'))
-            AppAlert.fire({
-                icon: 'success',
-                title: 'Berhasil Disimpan',
-                text: @json(session('success')),
-                showConfirmButton: false,
-                timer: 2600,
-                timerProgressBar: true
-            });
-        @endif
-
-        @if(session('error'))
-            AppAlert.fire({
-                icon: 'error',
-                title: 'Aksi Belum Berhasil',
-                text: @json(session('error')),
-                showConfirmButton: true,
-                confirmButtonText: 'Mengerti'
-            });
-        @endif
     </script>
     @stack('scripts')
 </body>

@@ -5,26 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Masuk - Sistem Absensi Digital</title>
   
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
-  
-  <!-- Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
   <style>
     body { 
-        font-family: 'Plus Jakarta Sans', sans-serif; 
-        background: radial-gradient(circle at top right, rgba(59, 130, 246, 0.05), transparent),
-                    radial-gradient(circle at bottom left, rgba(37, 99, 235, 0.05), transparent),
+        background: radial-gradient(circle at top right, rgba(59, 130, 246, 0.10), transparent 26rem),
+                    radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.08), transparent 24rem),
                     #f8fafc;
     }
     .auth-card { 
-        background: white; 
-        border-radius: 3rem; 
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.05); 
-        border: 1px solid rgba(226, 232, 240, 0.5);
+        background: rgba(255, 255, 255, 0.9); 
+        border-radius: 2rem; 
+        box-shadow: 0 28px 80px rgba(15, 23, 42, 0.08); 
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        backdrop-filter: blur(18px);
     }
     .btn-gradient { 
         background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); 
@@ -44,11 +36,16 @@
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }
+    .auth-shell { animation: auth-rise 500ms ease-out both; }
+    @keyframes auth-rise {
+        from { opacity: 0; transform: translateY(16px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
   </style>
   @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen flex items-center justify-center p-6 antialiased">
-  <div class="w-full max-w-md">
+  <div class="w-full max-w-md auth-shell">
     <div class="text-center mb-10">
       <a href="/" class="inline-flex items-center space-x-3 mb-8 group">
         <div class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center shadow-xl shadow-blue-200 group-hover:rotate-6 transition-transform">

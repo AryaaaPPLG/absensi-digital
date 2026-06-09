@@ -15,6 +15,25 @@
     .card-gradient-purple { background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%); }
     
     .row-new { animation: pulse-blue 2s ease-out; }
+    .dashboard-shell { animation: dashboard-rise 520ms ease-out both; }
+    .hero-panel {
+        background:
+            linear-gradient(135deg, rgba(15, 23, 42, 0.94), rgba(30, 41, 59, 0.92)),
+            radial-gradient(circle at 84% 30%, rgba(59, 130, 246, 0.28), transparent 18rem);
+    }
+    .metric-spark {
+        position: absolute;
+        inset: auto 1.25rem 1.25rem auto;
+        width: 4.5rem;
+        height: 2.5rem;
+        opacity: 0.22;
+        background: linear-gradient(135deg, transparent 42%, currentColor 43% 48%, transparent 49%),
+                    linear-gradient(45deg, transparent 52%, currentColor 53% 58%, transparent 59%);
+    }
+    @keyframes dashboard-rise {
+        from { opacity: 0; transform: translateY(14px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
     @keyframes pulse-blue {
         0% { background-color: rgba(59, 130, 246, 0.1); }
         100% { background-color: transparent; }
@@ -23,18 +42,39 @@
 @endsection
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-20">
+<div class="dashboard-shell max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-20">
     @if($user->role === 'admin')
         <!-- ADMIN DASHBOARD -->
-        <div class="mb-10">
-            <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Ringkasan Sistem</h2>
-            <p class="text-slate-500 font-medium mt-1">Pantau performa dan aktivitas absensi hari ini, {{ date('d F Y') }}</p>
+        <div class="hero-panel mb-10 rounded-[2rem] p-8 md:p-10 text-white relative overflow-hidden shadow-2xl shadow-slate-200">
+            <div class="absolute inset-0 scan-lines opacity-10"></div>
+            <div class="orbital-ring"></div>
+            <div class="relative z-10 flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+                <div>
+                    <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-blue-100 mb-5">
+                        <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Live Control Center
+                    </div>
+                    <h2 class="text-4xl md:text-5xl font-black tracking-tight">Ringkasan Sistem</h2>
+                    <p class="text-slate-300 font-medium mt-3 max-w-2xl">Pantau performa, scan RFID, dan aktivitas absensi hari ini, {{ date('d F Y') }}.</p>
+                </div>
+                <div class="grid grid-cols-2 gap-3 min-w-full sm:min-w-[24rem]">
+                    <div class="rounded-2xl border border-white/10 bg-white/10 p-4">
+                        <p class="text-[10px] font-black uppercase tracking-widest text-slate-300">Server</p>
+                        <p class="mt-1 text-sm font-black text-emerald-300">Online</p>
+                    </div>
+                    <div class="rounded-2xl border border-white/10 bg-white/10 p-4">
+                        <p class="text-[10px] font-black uppercase tracking-widest text-slate-300">RFID</p>
+                        <p class="mt-1 text-sm font-black text-blue-200">Ready</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             <!-- Total Users -->
-            <div class="stat-card bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 relative overflow-hidden group">
+            <div class="stat-card app-card-hover app-surface p-6 rounded-[2rem] relative overflow-hidden group text-blue-600">
                 <div class="absolute -right-4 -top-4 w-24 h-24 bg-blue-50 rounded-full group-hover:scale-110 transition-transform duration-500 opacity-50"></div>
+                <div class="metric-spark"></div>
                 <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4 relative z-10">
                     <i class="fas fa-users text-xl"></i>
                 </div>
@@ -53,8 +93,9 @@
             </div>
 
             <!-- Present Today -->
-            <div class="stat-card bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 relative overflow-hidden group">
+            <div class="stat-card app-card-hover app-surface p-6 rounded-[2rem] relative overflow-hidden group text-emerald-600">
                 <div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-50 rounded-full group-hover:scale-110 transition-transform duration-500 opacity-50"></div>
+                <div class="metric-spark"></div>
                 <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4 relative z-10">
                     <i class="fas fa-calendar-check text-xl"></i>
                 </div>
@@ -73,8 +114,9 @@
             </div>
 
             <!-- Late Today -->
-            <div class="stat-card bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 relative overflow-hidden group">
+            <div class="stat-card app-card-hover app-surface p-6 rounded-[2rem] relative overflow-hidden group text-amber-600">
                 <div class="absolute -right-4 -top-4 w-24 h-24 bg-amber-50 rounded-full group-hover:scale-110 transition-transform duration-500 opacity-50"></div>
+                <div class="metric-spark"></div>
                 <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mb-4 relative z-10">
                     <i class="fas fa-clock text-xl"></i>
                 </div>
@@ -92,6 +134,7 @@
 
             <!-- System Status -->
             <div class="stat-card card-gradient-blue p-6 rounded-[2rem] shadow-lg shadow-blue-200 text-white relative overflow-hidden">
+                <div class="orbital-ring"></div>
                 <i class="fas fa-microchip absolute -right-4 -bottom-4 text-7xl opacity-10 rotate-12"></i>
                 <div class="w-12 h-12 rounded-2xl bg-white/20 text-white flex items-center justify-center mb-4">
                     <i class="fas fa-shield-alt text-xl"></i>
@@ -109,7 +152,7 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Recent Activity Table -->
-            <div class="lg:col-span-2 bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
+            <div class="lg:col-span-2 app-surface rounded-[2rem] overflow-hidden">
                 <div class="px-8 py-7 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
                     <div>
                         <h3 class="text-xl font-black text-slate-800 tracking-tight">Aktivitas Terbaru</h3>
@@ -174,7 +217,8 @@
 
             <!-- Quick Actions & Log -->
             <div class="space-y-8">
-                <div class="bg-slate-900 rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-xl shadow-slate-200">
+                <div class="bg-slate-900 rounded-[2rem] p-8 text-white relative overflow-hidden shadow-xl shadow-slate-200">
+                    <div class="absolute inset-0 scan-lines opacity-10"></div>
                     <div class="relative z-10">
                         <h3 class="text-xl font-black mb-6 tracking-tight">Quick Actions</h3>
                         <div class="grid grid-cols-1 gap-4">
@@ -223,7 +267,7 @@
                 </div>
 
                 <!-- System Log -->
-                <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 p-8">
+                <div class="app-surface rounded-[2rem] p-8">
                     <h3 class="text-lg font-black text-slate-800 mb-6 flex items-center">
                         <i class="fas fa-terminal text-blue-600 mr-3 text-sm"></i> System Log
                     </h3>
@@ -252,7 +296,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
             <!-- Sidebar: User Info -->
             <div class="lg:col-span-1 space-y-6">
-                <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden p-8 text-center group">
+                <div class="app-surface rounded-[2rem] overflow-hidden p-8 text-center group">
                     <div class="relative inline-block mb-6">
                         <div class="w-28 h-28 rounded-[2rem] bg-blue-50 text-blue-600 flex items-center justify-center text-4xl font-black mx-auto shadow-inner shadow-blue-100 group-hover:scale-105 transition-transform duration-500">
                             {{ substr($user->name, 0, 1) }}
@@ -284,7 +328,8 @@
                     </a>
                 </div>
 
-                <div class="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[2rem] p-8 text-white relative overflow-hidden shadow-xl shadow-blue-100">
+                <div class="bg-gradient-to-br from-blue-600 to-slate-900 rounded-[2rem] p-8 text-white relative overflow-hidden shadow-xl shadow-blue-100">
+                    <div class="orbital-ring"></div>
                     <i class="fas fa-info-circle absolute -right-4 -top-4 text-7xl opacity-10 rotate-12"></i>
                     <p class="text-sm font-bold leading-relaxed mb-6 relative z-10">Selalu pastikan Anda melakukan scan kartu saat datang dan pulang untuk pendataan yang akurat.</p>
                     <div class="bg-white/20 h-1.5 rounded-full overflow-hidden relative z-10">
@@ -296,7 +341,7 @@
             <!-- Main Content: Stats & History -->
             <div class="lg:col-span-3 space-y-10">
                 @if($user->role === 'guru')
-                <div class="bg-white rounded-[2.5rem] p-10 border border-slate-100 relative overflow-hidden shadow-sm flex flex-col md:flex-row items-center justify-between gap-6 group">
+                <div class="app-surface rounded-[2rem] p-10 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6 group">
                     <div class="relative z-10">
                         <h3 class="text-2xl font-black text-slate-900 mb-2">Panel Guru</h3>
                         <p class="text-slate-500 font-medium max-w-md">Kelola absensi siswa perwalian dan lihat laporan perkembangan belajar.</p>
@@ -315,26 +360,26 @@
                         <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-white border border-slate-100 px-3 py-1 rounded-lg">Bulan Ini</span>
                     </div>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm text-center group hover:border-emerald-200 transition-colors">
+                        <div class="app-surface app-card-hover p-6 rounded-[2rem] text-center group hover:border-emerald-200 transition-colors">
                             <span class="text-4xl font-black text-emerald-500 leading-none group-hover:scale-110 inline-block transition-transform">{{ $myStats['hadir'] }}</span>
                             <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-3">Hadir</p>
                         </div>
-                        <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm text-center group hover:border-amber-200 transition-colors">
+                        <div class="app-surface app-card-hover p-6 rounded-[2rem] text-center group hover:border-amber-200 transition-colors">
                             <span class="text-4xl font-black text-amber-500 leading-none group-hover:scale-110 inline-block transition-transform">{{ $myStats['terlambat'] }}</span>
                             <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-3">Terlambat</p>
                         </div>
-                        <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm text-center group hover:border-blue-200 transition-colors">
+                        <div class="app-surface app-card-hover p-6 rounded-[2rem] text-center group hover:border-blue-200 transition-colors">
                             <span class="text-4xl font-black text-blue-500 leading-none group-hover:scale-110 inline-block transition-transform">{{ $myStats['izin'] }}</span>
                             <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-3">Izin</p>
                         </div>
-                        <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm text-center group hover:border-red-200 transition-colors">
+                        <div class="app-surface app-card-hover p-6 rounded-[2rem] text-center group hover:border-red-200 transition-colors">
                             <span class="text-4xl font-black text-red-500 leading-none group-hover:scale-110 inline-block transition-transform">{{ $myStats['alpha'] }}</span>
                             <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-3">Alpha</p>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
+                <div class="app-surface rounded-[2rem] overflow-hidden">
                     <div class="px-8 py-7 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
                         <h3 class="text-xl font-black text-slate-800 tracking-tight">Riwayat Absensi</h3>
                         <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Last 5 Activities</span>
@@ -366,7 +411,7 @@
                             @empty
                             <div class="py-20 text-center">
                                 <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center text-slate-200 mx-auto mb-6 text-3xl">
-                                    <i class="fas fa-ghost"></i>
+                                    <i class="fas fa-clipboard-list"></i>
                                 </div>
                                 <p class="text-slate-400 font-black uppercase tracking-widest text-xs">Belum ada catatan absensi</p>
                             </div>

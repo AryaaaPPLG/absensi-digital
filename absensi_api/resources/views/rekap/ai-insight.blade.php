@@ -6,35 +6,8 @@
     <title>AI Overlord Insight - Absensi Digital</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'sans-serif'],
-                    },
-                    colors: {
-                        primary: {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            200: '#bfdbfe',
-                            300: '#93c5fd',
-                            400: '#60a5fa',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                            800: '#1e40af',
-                            900: '#1e3a8a',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
     <style>
         .glass-nav {
             background: rgba(255, 255, 255, 0.8);
@@ -121,7 +94,6 @@
             box-shadow: 0 10px 24px rgba(37, 99, 235, 0.28) !important;
         }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body class="bg-slate-50 text-slate-900 font-sans selection:bg-blue-100 selection:text-blue-600 min-h-screen flex flex-col">
 
@@ -256,16 +228,21 @@
         const statTotal = document.getElementById('statTotal');
         const statHadir = document.getElementById('statHadir');
         const statTerlambat = document.getElementById('statTerlambat');
-        const InsightAlert = Swal.mixin({
-            confirmButtonColor: '#2563eb',
-            buttonsStyling: true,
-            customClass: {
-                popup: 'swal2-insight-popup',
-                title: 'swal2-insight-title',
-                htmlContainer: 'swal2-insight-html',
-                confirmButton: 'swal2-insight-confirm'
+        const InsightAlert = {
+            fire(options) {
+                return window.Swal.fire({
+                    confirmButtonColor: '#2563eb',
+                    buttonsStyling: true,
+                    customClass: {
+                        popup: 'swal2-insight-popup',
+                        title: 'swal2-insight-title',
+                        htmlContainer: 'swal2-insight-html',
+                        confirmButton: 'swal2-insight-confirm'
+                    },
+                    ...options
+                });
             }
-        });
+        };
 
         generateBtn.addEventListener('click', async () => {
             // Show loading

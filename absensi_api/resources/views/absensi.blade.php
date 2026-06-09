@@ -5,20 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Terminal RFID - Sistem Absensi Digital</title>
   
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
-  
-  <!-- Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  
   <style>
     body { 
-        font-family: 'Plus Jakarta Sans', sans-serif; 
-        background-color: #020617; 
+        background:
+          radial-gradient(circle at 18% 12%, rgba(37, 99, 235, 0.26), transparent 26rem),
+          radial-gradient(circle at 86% 28%, rgba(16, 185, 129, 0.16), transparent 22rem),
+          linear-gradient(135deg, #020617 0%, #0f172a 55%, #111827 100%); 
         color: white;
         overflow-x: hidden;
     }
@@ -81,12 +73,42 @@
     .swal2-timer-progress-bar {
         background: linear-gradient(90deg, #22c55e, #2563eb) !important;
     }
+    .terminal-shell {
+        animation: terminal-rise 600ms ease-out both;
+    }
+    .scanner-sweep {
+        position: absolute;
+        inset: 14%;
+        border-radius: 2rem;
+        pointer-events: none;
+        overflow: hidden;
+    }
+    .scanner-sweep::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: -18%;
+        height: 18%;
+        background: linear-gradient(180deg, transparent, rgba(96, 165, 250, 0.35), transparent);
+        animation: scanner-sweep 2.8s ease-in-out infinite;
+    }
+    @keyframes scanner-sweep {
+        0% { transform: translateY(0); opacity: 0; }
+        15% { opacity: 1; }
+        85% { opacity: 1; }
+        100% { transform: translateY(680%); opacity: 0; }
+    }
+    @keyframes terminal-rise {
+        from { opacity: 0; transform: translateY(18px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
   </style>
   @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen flex flex-col items-center antialiased">
   
-  <div class="w-full max-w-7xl px-6">
+  <div class="w-full max-w-7xl px-6 terminal-shell">
     <div class="text-center mb-12 mt-12">
       <div class="inline-flex items-center px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full space-x-2 mb-6">
           <span class="flex h-2 w-2 rounded-full bg-blue-500 animate-pulse"></span>
@@ -103,11 +125,14 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
       <!-- Left Column: Scanner Visualizer -->
       <div class="space-y-8">
-        <div id="scannerArea" class="scan-container rounded-[3rem] p-16 flex flex-col items-center justify-center relative overflow-hidden group">
+        <div id="scannerArea" class="scan-container rounded-[3rem] p-16 flex flex-col items-center justify-center relative overflow-hidden group min-h-[30rem]">
+          <div class="absolute inset-0 scan-lines opacity-35"></div>
+          <div class="scanner-sweep"></div>
+          <div class="orbital-ring"></div>
           <div class="bg-blue-600/10 p-10 rounded-full mb-8 pulse-blue border border-blue-500/20">
             <i class="fas fa-id-card text-8xl text-blue-500 group-hover:scale-110 transition-transform"></i>
           </div>
-          <p id="instructionText" class="text-2xl font-black text-white tracking-tight uppercase tracking-[0.1em]">Menunggu Kartu...</p>
+          <p id="instructionText" class="relative z-10 text-2xl font-black text-white tracking-tight uppercase tracking-[0.1em]">Menunggu Kartu...</p>
           <p class="text-slate-500 mt-2 font-bold uppercase text-xs tracking-widest">TAP DISINI</p>
           
           <!-- Hidden input for RFID reader -->
@@ -201,18 +226,89 @@
     const activityBody = document.getElementById('activityBody');
     const emptyState = document.getElementById('emptyState');
     const realtimeClock = document.getElementById('realtimeClock');
-    const RfidAlert = Swal.mixin({
-      background: '#ffffff',
-      color: '#1e293b',
-      confirmButtonColor: '#2563eb',
-      buttonsStyling: true,
-      customClass: {
-        popup: 'swal2-rfid-popup',
-        title: 'swal2-rfid-title',
-        htmlContainer: 'swal2-rfid-html',
-        confirmButton: 'swal2-rfid-confirm'
+
+    function fireTerminalAlert(options = {}) {
+      const existingAlert = document.querySelector('.app-alert-backdrop');
+      if (existingAlert) existingAlert.remove();
+
+      const type = options.icon || 'info';
+      const iconClass = {
+        success: 'fa-circle-check',
+        error: 'fa-circle-xmark',
+        warning: 'fa-triangle-exclamation',
+        info: 'fa-circle-info'
+      }[type] || 'fa-circle-info';
+      const paletteClass = {
+        success: 'app-alert-success',
+        error: 'app-alert-error',
+        warning: 'app-alert-warning',
+        info: 'app-alert-info'
+      }[type] || 'app-alert-info';
+      const title = options.title ? escapeHtml(options.title) : '';
+      const body = options.html || (options.text ? `<p>${escapeHtml(options.text)}</p>` : '');
+      const showConfirm = options.showConfirmButton !== false;
+      const timer = Number(options.timer || 0);
+
+      const backdrop = document.createElement('div');
+      backdrop.className = `app-alert-backdrop ${paletteClass}`;
+      backdrop.innerHTML = `
+        <section class="app-alert" role="dialog" aria-modal="true" aria-live="polite">
+          <div class="app-alert-icon"><i class="fas ${iconClass}"></i></div>
+          ${title ? `<h2>${title}</h2>` : ''}
+          <div class="app-alert-body">${body}</div>
+          ${showConfirm ? `<button type="button" class="app-alert-confirm">${escapeHtml(options.confirmButtonText || 'OK')}</button>` : ''}
+          ${timer && options.timerProgressBar ? '<div class="app-alert-progress"></div>' : ''}
+        </section>
+      `;
+      document.body.appendChild(backdrop);
+
+      const progress = backdrop.querySelector('.app-alert-progress');
+      const close = () => {
+        backdrop.classList.add('is-leaving');
+        setTimeout(() => {
+          backdrop.remove();
+          rfidInput.focus();
+        }, 180);
+      };
+
+      requestAnimationFrame(() => {
+        backdrop.classList.add('is-visible');
+        if (progress && timer) progress.style.animationDuration = `${timer}ms`;
+      });
+
+      backdrop.querySelector('.app-alert-confirm')?.addEventListener('click', close);
+      if (timer) setTimeout(close, timer);
+
+      return Promise.resolve({ isConfirmed: true });
+    }
+
+    const RfidAlert = {
+      fire(options) {
+        const alertApi = window.Swal || window.AppAlert;
+
+        try {
+          if (alertApi?.fire) {
+            return alertApi.fire({
+              background: '#ffffff',
+              color: '#1e293b',
+              confirmButtonColor: '#2563eb',
+              buttonsStyling: true,
+              customClass: {
+                popup: 'swal2-rfid-popup',
+                title: 'swal2-rfid-title',
+                htmlContainer: 'swal2-rfid-html',
+                confirmButton: 'swal2-rfid-confirm'
+              },
+              ...options
+            });
+          }
+        } catch (error) {
+          console.error('RFID alert failed:', error);
+        }
+
+        return fireTerminalAlert(options);
       }
-    });
+    };
 
     // Fungsi untuk memperbarui jam digital secara real-time
     function updateClock() {
@@ -273,8 +369,8 @@
 
         if (response.ok) {
           // Jika Berhasil: Tampilkan notifikasi SweetAlert sukses
-          showStatus('success', data);
           updateActivityRow(data); // Tambahkan baris baru ke tabel aktivitas tanpa refresh
+          showStatus('success', data);
         } else {
           // Jika Gagal (Kartu tidak terdaftar/sudah absen): Tampilkan notifikasi error
           showStatus('error', data);
@@ -286,6 +382,7 @@
         setTimeout(() => {
           scannerArea.classList.remove('scan-active');
           instructionText.textContent = 'Menunggu Kartu...';
+          rfidInput.focus();
         }, 2000);
       }
     }
@@ -322,7 +419,14 @@
           showConfirmButton: false,
           timer: 3300,
           timerProgressBar: true
-        });
+        }).catch(() => fireTerminalAlert({
+          icon: 'success',
+          title: isOut ? 'Absensi Pulang Tercatat' : 'Absensi Masuk Tercatat',
+          text: message,
+          showConfirmButton: false,
+          timer: 3300,
+          timerProgressBar: true
+        }));
       } else {
         const message = data.message || 'Scan tidak dapat diproses. Silakan coba lagi.';
         const isWarning = message.toLowerCase().includes('sudah');
@@ -333,7 +437,12 @@
           title: isWarning ? 'Absensi Sudah Tercatat' : 'Scan Tidak Berhasil',
           html: `<p style="margin:0;color:#64748b;font-weight:700;line-height:1.6;">${safeMessage}</p>`,
           confirmButtonText: 'Mengerti'
-        });
+        }).catch(() => fireTerminalAlert({
+          icon: isWarning ? 'warning' : 'error',
+          title: isWarning ? 'Absensi Sudah Tercatat' : 'Scan Tidak Berhasil',
+          text: safeMessage,
+          confirmButtonText: 'Mengerti'
+        }));
       }
     }
 

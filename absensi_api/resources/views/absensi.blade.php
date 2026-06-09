@@ -8,28 +8,39 @@
   <style>
     body { 
         background:
-          radial-gradient(circle at 18% 12%, rgba(37, 99, 235, 0.26), transparent 26rem),
-          radial-gradient(circle at 86% 28%, rgba(16, 185, 129, 0.16), transparent 22rem),
-          linear-gradient(135deg, #020617 0%, #0f172a 55%, #111827 100%); 
+          radial-gradient(circle at 18% 12%, rgba(59, 130, 246, 0.15), transparent 26rem),
+          radial-gradient(circle at 86% 28%, rgba(139, 92, 246, 0.1), transparent 22rem),
+          radial-gradient(circle at 50% 80%, rgba(16, 185, 129, 0.05), transparent 20rem),
+          linear-gradient(135deg, #050508 0%, #0a0a0f 55%, #080810 100%); 
         color: white;
         overflow-x: hidden;
     }
+    body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -2;
+        background-image:
+            radial-gradient(circle at 1px 1px, rgba(59, 130, 246, 0.04) 1px, transparent 0);
+        background-size: 40px 40px;
+        pointer-events: none;
+    }
     .scan-container { 
-        border: 2px dashed rgba(59, 130, 246, 0.3); 
+        border: 2px dashed rgba(59, 130, 246, 0.2); 
         transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); 
-        background: rgba(15, 23, 42, 0.6);
+        background: rgba(10, 10, 15, 0.7);
         backdrop-filter: blur(20px);
     }
     .scan-active { 
         border-color: #3b82f6; 
-        background: rgba(59, 130, 246, 0.1);
-        box-shadow: 0 0 50px rgba(59, 130, 246, 0.2);
+        background: rgba(59, 130, 246, 0.08);
+        box-shadow: 0 0 60px rgba(59, 130, 246, 0.15);
     }
     .pulse-blue { 
         animation: pulse-animation 2s infinite; 
     }
     @keyframes pulse-animation {
-      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5); }
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
       70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(59, 130, 246, 0); }
       100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
     }
@@ -39,7 +50,7 @@
       to { opacity: 1; transform: translateY(0); }
     }
     .text-gradient {
-        background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
+        background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #34d399 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }
@@ -47,17 +58,20 @@
         border-radius: 32px !important;
         padding: 30px !important;
         font-family: 'Plus Jakarta Sans', sans-serif !important;
-        box-shadow: 0 28px 90px rgba(2, 6, 23, 0.38) !important;
+        background: rgba(15, 17, 23, 0.95) !important;
+        border: 1px solid rgba(59, 130, 246, 0.15) !important;
+        box-shadow: 0 28px 90px rgba(0, 0, 0, 0.5), 0 0 40px rgba(59, 130, 246, 0.1) !important;
+        backdrop-filter: blur(20px) !important;
     }
     .swal2-rfid-title {
-        color: #0f172a !important;
+        color: #f1f5f9 !important;
         font-size: 1.45rem !important;
         font-weight: 900 !important;
         letter-spacing: -0.015em !important;
     }
     .swal2-rfid-html,
     .swal2-rfid-popup .swal2-html-container {
-        color: #475569 !important;
+        color: #94a3b8 !important;
         margin-top: 10px !important;
         font-family: 'Plus Jakarta Sans', sans-serif !important;
     }
@@ -68,10 +82,11 @@
         font-weight: 900 !important;
         letter-spacing: 0.16em !important;
         text-transform: uppercase !important;
-        box-shadow: 0 14px 28px rgba(37, 99, 235, 0.28) !important;
+        background: linear-gradient(135deg, #3b82f6, #8b5cf6) !important;
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.3) !important;
     }
     .swal2-timer-progress-bar {
-        background: linear-gradient(90deg, #22c55e, #2563eb) !important;
+        background: linear-gradient(90deg, #10b981, #3b82f6, #8b5cf6) !important;
     }
     .terminal-shell {
         animation: terminal-rise 600ms ease-out both;
@@ -90,7 +105,7 @@
         right: 0;
         top: -18%;
         height: 18%;
-        background: linear-gradient(180deg, transparent, rgba(96, 165, 250, 0.35), transparent);
+        background: linear-gradient(180deg, transparent, rgba(96, 165, 250, 0.2), transparent);
         animation: scanner-sweep 2.8s ease-in-out infinite;
     }
     @keyframes scanner-sweep {
@@ -111,13 +126,13 @@
   <div class="w-full max-w-7xl px-6 terminal-shell">
     <div class="text-center mb-12 mt-12">
       <div class="inline-flex items-center px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full space-x-2 mb-6">
-          <span class="flex h-2 w-2 rounded-full bg-blue-500 animate-pulse"></span>
+          <span class="flex h-2 w-2 rounded-full bg-blue-400 animate-pulse"></span>
           <span class="text-[10px] font-black text-blue-400 uppercase tracking-[0.2em]">Live RFID Terminal v2.0</span>
       </div>
-      <h1 class="text-5xl font-black mb-3 tracking-tight">SISTEM <span class="text-gradient">ABSENSI DIGITAL</span></h1>
-      <p class="text-slate-400 text-lg font-medium">Silakan tempelkan kartu RFID Anda pada reader untuk melakukan absensi.</p>
+      <h1 class="text-5xl font-black mb-3 tracking-tight text-slate-100">SISTEM <span class="text-gradient">ABSENSI DIGITAL</span></h1>
+      <p class="text-slate-500 text-lg font-medium">Silakan tempelkan kartu RFID Anda pada reader untuk melakukan absensi.</p>
       
-      <div id="realtimeClock" class="text-2xl font-black text-white mt-8 bg-slate-900/80 backdrop-blur-md inline-block px-10 py-4 rounded-[2rem] border border-slate-800 shadow-2xl">
+      <div id="realtimeClock" class="text-2xl font-black text-white mt-8 bg-white/5 backdrop-blur-md inline-block px-10 py-4 rounded-[2rem] border border-white/10 shadow-2xl">
           <!-- JS Clock -->
       </div>
     </div>
@@ -129,11 +144,11 @@
           <div class="absolute inset-0 scan-lines opacity-35"></div>
           <div class="scanner-sweep"></div>
           <div class="orbital-ring"></div>
-          <div class="bg-blue-600/10 p-10 rounded-full mb-8 pulse-blue border border-blue-500/20">
-            <i class="fas fa-id-card text-8xl text-blue-500 group-hover:scale-110 transition-transform"></i>
+          <div class="bg-blue-500/10 p-10 rounded-full mb-8 pulse-blue border border-blue-500/20">
+            <i class="fas fa-id-card text-8xl text-blue-400 group-hover:scale-110 transition-transform"></i>
           </div>
-          <p id="instructionText" class="relative z-10 text-2xl font-black text-white tracking-tight uppercase tracking-[0.1em]">Menunggu Kartu...</p>
-          <p class="text-slate-500 mt-2 font-bold uppercase text-xs tracking-widest">TAP DISINI</p>
+          <p id="instructionText" class="relative z-10 text-2xl font-black text-slate-100 tracking-tight uppercase tracking-[0.1em]">Menunggu Kartu...</p>
+          <p class="text-slate-600 mt-2 font-bold uppercase text-xs tracking-widest">TAP DISINI</p>
           
           <!-- Hidden input for RFID reader -->
           <input type="text" id="rfidInput" class="absolute opacity-0 pointer-events-none" autofocus>
@@ -142,49 +157,49 @@
           <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-blue-500/5 rounded-full blur-3xl"></div>
         </div>
 
-        <div class="bg-slate-900/50 backdrop-blur-md p-6 rounded-[2rem] border border-slate-800 flex items-center justify-between">
+        <div class="bg-white/5 backdrop-blur-md p-6 rounded-[2rem] border border-white/10 flex items-center justify-between">
             <div class="flex items-center space-x-4">
-                <div class="w-10 h-10 bg-green-500/20 text-green-500 rounded-xl flex items-center justify-center">
+                <div class="w-10 h-10 bg-emerald-500/10 text-emerald-400 rounded-xl flex items-center justify-center border border-emerald-500/20">
                     <i class="fas fa-check-shield text-lg"></i>
                 </div>
                 <div>
-                    <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Status Sistem</p>
-                    <p class="text-sm font-bold text-white uppercase tracking-tight">Terminal Aktif & Online</p>
+                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest">Status Sistem</p>
+                    <p class="text-sm font-bold text-slate-200 uppercase tracking-tight">Terminal Aktif & Online</p>
                 </div>
             </div>
             <div class="text-right">
-                <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Device ID</p>
+                <p class="text-xs font-black text-slate-500 uppercase tracking-widest">Device ID</p>
                 <p class="text-sm font-mono font-bold text-blue-400 uppercase tracking-tight">TERM-001</p>
             </div>
         </div>
       </div>
 
       <!-- Right Column: Recent Activity -->
-      <div class="bg-slate-900/80 backdrop-blur-xl rounded-[3rem] overflow-hidden shadow-2xl border border-slate-800">
-        <div class="p-8 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
+      <div class="bg-white/[0.03] backdrop-blur-xl rounded-[3rem] overflow-hidden shadow-2xl border border-white/10">
+        <div class="p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
           <div>
-            <h3 class="text-xl font-black text-white tracking-tight">Aktivitas Terbaru</h3>
-            <p class="text-[10px] font-black text-blue-500 uppercase tracking-[0.2em] mt-1">Hari Ini</p>
+            <h3 class="text-xl font-black text-slate-100 tracking-tight">Aktivitas Terbaru</h3>
+            <p class="text-[10px] font-black text-blue-400 uppercase tracking-[0.2em] mt-1">Hari Ini</p>
           </div>
-          <i class="fas fa-history text-slate-700 text-xl"></i>
+          <i class="fas fa-history text-slate-600 text-xl"></i>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full" id="activityTable">
             <thead>
-              <tr class="text-left text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] bg-slate-900/80">
+              <tr class="text-left text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] bg-white/[0.02]">
                 <th class="py-5 px-8">Siswa</th>
                 <th class="py-5 px-6">Masuk</th>
                 <th class="py-5 px-6">Pulang</th>
                 <th class="py-5 px-8 text-right">Status</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-800" id="activityBody">
+            <tbody class="divide-y divide-white/5" id="activityBody">
               @forelse($recentAttendances as $att)
-              <tr class="activity-row group hover:bg-white/5 transition-colors" id="row-{{ $att->user_id }}">
+              <tr class="activity-row group hover:bg-white/[0.03] transition-colors" id="row-{{ $att->user_id }}">
                 <td class="py-5 px-8">
                   <div class="flex flex-col">
-                    <span class="font-bold text-slate-200 group-hover:text-white transition-colors">{{ $att->user->name }}</span>
-                    <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">{{ $att->user->schoolClass?->nama_kelas ?? '-' }} / {{ $att->user->schoolClass?->jurusan ?? '-' }}</span>
+                    <span class="font-bold text-slate-300 group-hover:text-slate-100 transition-colors">{{ $att->user->name }}</span>
+                    <span class="text-[10px] font-black text-slate-600 uppercase tracking-widest mt-1">{{ $att->user->schoolClass?->nama_kelas ?? '-' }} / {{ $att->user->schoolClass?->jurusan ?? '-' }}</span>
                   </div>
                 </td>
                 <td class="py-5 px-6 text-slate-400 text-sm font-bold time-in">
@@ -194,7 +209,7 @@
                   {{ $att->time_out ?? '--:--' }}
                 </td>
                 <td class="py-5 px-8 text-right">
-                  <span class="px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest {{ $att->status === 'hadir' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500' }}">
+                  <span class="px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest {{ $att->status === 'hadir' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20' }}">
                     {{ $att->status }}
                   </span>
                 </td>
@@ -203,10 +218,10 @@
               <tr id="emptyState">
                 <td colspan="4" class="py-24 text-center">
                     <div class="flex flex-col items-center">
-                        <div class="w-16 h-16 bg-slate-800/50 rounded-full flex items-center justify-center text-slate-600 mb-4 text-2xl">
+                        <div class="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center text-slate-600 mb-4 text-2xl border border-white/5">
                             <i class="fas fa-clipboard-user"></i>
                         </div>
-                        <p class="text-slate-500 font-black uppercase tracking-widest text-xs italic">Belum ada aktivitas hari ini</p>
+                        <p class="text-slate-600 font-black uppercase tracking-widest text-xs italic">Belum ada aktivitas hari ini</p>
                     </div>
                 </td>
               </tr>
@@ -219,7 +234,6 @@
   </div>
 
   <script>
-    // Referensi ke elemen-elemen HTML yang dibutuhkan
     const rfidInput = document.getElementById('rfidInput');
     const scannerArea = document.getElementById('scannerArea');
     const instructionText = document.getElementById('instructionText');
@@ -289,9 +303,9 @@
         try {
           if (alertApi?.fire) {
             return alertApi.fire({
-              background: '#ffffff',
-              color: '#1e293b',
-              confirmButtonColor: '#2563eb',
+              background: '#0f1117',
+              color: '#e2e8f0',
+              confirmButtonColor: '#3b82f6',
               buttonsStyling: true,
               customClass: {
                 popup: 'swal2-rfid-popup',
@@ -310,7 +324,6 @@
       }
     };
 
-    // Fungsi untuk memperbarui jam digital secara real-time
     function updateClock() {
       const now = new Date();
       const options = { 
@@ -321,13 +334,9 @@
       realtimeClock.textContent = now.toLocaleDateString('id-ID', options) + ' WIB';
     }
     
-    // Jalankan jam setiap 1 detik
     setInterval(updateClock, 1000);
     updateClock();
 
-    // TEKNIK PENTING: Paksa input RFID selalu fokus (focus)
-    // Karena scanner RFID bekerja seperti keyboard yang mengetik cepat lalu menekan Enter.
-    // Jika input tidak fokus, data scanner tidak akan tertangkap.
     document.addEventListener('click', () => rfidInput.focus());
     window.onload = () => rfidInput.focus();
 
@@ -337,24 +346,19 @@
       return div.innerHTML;
     }
 
-    // Menangkap input dari scanner RFID
     rfidInput.addEventListener('keypress', async (e) => {
-      // Scanner RFID biasanya mengirimkan tombol 'Enter' di akhir pembacaan UID
       if (e.key === 'Enter') {
         const uid = rfidInput.value.trim();
-        if (uid) processScan(uid); // Kirim UID ke server untuk diproses
-        rfidInput.value = ''; // Kosongkan input agar siap untuk scan berikutnya
+        if (uid) processScan(uid);
+        rfidInput.value = '';
       }
     });
 
-    // Fungsi untuk mengirim data UID ke server via API
     async function processScan(uid) {
-      // Efek visual: beri animasi pada area scanner saat memproses
       scannerArea.classList.add('scan-active');
       instructionText.textContent = 'Memproses...';
       
       try {
-        // Mengirim data UID ke RfidController@scan melalui route API
         const response = await fetch('/api/attendance/scan', {
           method: 'POST',
           headers: {
@@ -368,17 +372,14 @@
         const data = await response.json();
 
         if (response.ok) {
-          // Jika Berhasil: Tampilkan notifikasi SweetAlert sukses
-          updateActivityRow(data); // Tambahkan baris baru ke tabel aktivitas tanpa refresh
+          updateActivityRow(data);
           showStatus('success', data);
         } else {
-          // Jika Gagal (Kartu tidak terdaftar/sudah absen): Tampilkan notifikasi error
           showStatus('error', data);
         }
       } catch (error) {
         showStatus('error', { message: 'Terjadi kesalahan koneksi sistem.' });
       } finally {
-        // Kembalikan status tampilan ke semula setelah 2 detik
         setTimeout(() => {
           scannerArea.classList.remove('scan-active');
           instructionText.textContent = 'Menunggu Kartu...';
@@ -400,21 +401,21 @@
           icon: 'success',
           title: isOut ? 'Absensi Pulang Tercatat' : 'Absensi Masuk Tercatat',
           html: `
-            <div style="text-align:left;margin-top:18px;padding:20px;border-radius:24px;background:#f8fafc;border:1px solid #e2e8f0;">
+            <div style="text-align:left;margin-top:18px;padding:20px;border-radius:24px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);">
               <div style="display:flex;justify-content:space-between;gap:18px;margin-bottom:12px;">
-                <span style="color:#94a3b8;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.16em;">Nama</span>
-                <span style="color:#0f172a;font-weight:900;text-align:right;">${userName}</span>
+                <span style="color:#64748b;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.16em;">Nama</span>
+                <span style="color:#f1f5f9;font-weight:900;text-align:right;">${userName}</span>
               </div>
               <div style="display:flex;justify-content:space-between;gap:18px;margin-bottom:12px;">
-                <span style="color:#94a3b8;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.16em;">Kelas</span>
-                <span style="color:#334155;font-weight:800;text-align:right;">${kelas} / ${jurusan}</span>
+                <span style="color:#64748b;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.16em;">Kelas</span>
+                <span style="color:#cbd5e1;font-weight:800;text-align:right;">${kelas} / ${jurusan}</span>
               </div>
-              <div style="display:flex;justify-content:space-between;gap:18px;padding-top:12px;border-top:1px solid #e2e8f0;">
-                <span style="color:#94a3b8;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.16em;">Waktu</span>
-                <span style="color:#2563eb;font-weight:900;text-align:right;">${scanTime} WIB</span>
+              <div style="display:flex;justify-content:space-between;gap:18px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06);">
+                <span style="color:#64748b;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.16em;">Waktu</span>
+                <span style="color:#60a5fa;font-weight:900;text-align:right;">${scanTime} WIB</span>
               </div>
             </div>
-            <p style="margin-top:16px;color:#64748b;font-size:13px;font-weight:800;line-height:1.6;">${message}</p>
+            <p style="margin-top:16px;color:#94a3b8;font-size:13px;font-weight:800;line-height:1.6;">${message}</p>
           `,
           showConfirmButton: false,
           timer: 3300,
@@ -435,7 +436,7 @@
         RfidAlert.fire({
           icon: isWarning ? 'warning' : 'error',
           title: isWarning ? 'Absensi Sudah Tercatat' : 'Scan Tidak Berhasil',
-          html: `<p style="margin:0;color:#64748b;font-weight:700;line-height:1.6;">${safeMessage}</p>`,
+          html: `<p style="margin:0;color:#94a3b8;font-weight:700;line-height:1.6;">${safeMessage}</p>`,
           confirmButtonText: 'Mengerti'
         }).catch(() => fireTerminalAlert({
           icon: isWarning ? 'warning' : 'error',
@@ -453,19 +454,19 @@
       
       if (data.type === 'out' && existingRow) {
         existingRow.querySelector('.time-out').textContent = data.time;
-        existingRow.classList.add('bg-blue-500/10');
-        setTimeout(() => existingRow.classList.remove('bg-blue-500/10'), 2000);
+        existingRow.classList.add('bg-blue-500/5');
+        setTimeout(() => existingRow.classList.remove('bg-blue-500/5'), 2000);
         return;
       }
 
       const row = document.createElement('tr');
       row.id = `row-${data.user_id || Date.now()}`;
-      row.className = 'activity-row group border-b border-slate-800 hover:bg-white/5 transition-colors';
+      row.className = 'activity-row group border-b border-white/5 hover:bg-white/[0.03] transition-colors';
       row.innerHTML = `
         <td class="py-5 px-8">
           <div class="flex flex-col">
-            <span class="font-bold text-slate-200 group-hover:text-white transition-colors">${data.user}</span>
-            <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">${data.kelas || '-'} / ${data.jurusan || '-'}</span>
+            <span class="font-bold text-slate-300 group-hover:text-slate-100 transition-colors">${data.user}</span>
+            <span class="text-[10px] font-black text-slate-600 uppercase tracking-widest mt-1">${data.kelas || '-'} / ${data.jurusan || '-'}</span>
           </div>
         </td>
         <td class="py-5 px-6 text-slate-400 text-sm font-bold time-in">
@@ -475,7 +476,7 @@
           --:--
         </td>
         <td class="py-5 px-8 text-right">
-          <span class="px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-500">
+          <span class="px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
             HADIR
           </span>
         </td>

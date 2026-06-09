@@ -16,21 +16,63 @@
 @layer base {
     body {
         font-family: var(--font-sans);
+        background: #0a0a0f;
+        color: #e2e8f0;
+    }
+
+    /* Silicon Valley Grid Background */
+    body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -2;
+        background-image:
+            radial-gradient(circle at 1px 1px, rgba(59, 130, 246, 0.06) 1px, transparent 0);
+        background-size: 40px 40px;
+        pointer-events: none;
+    }
+
+    /* Ambient Glow Orbs */
+    body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
         background:
-            radial-gradient(circle at 10% 10%, rgba(14, 165, 233, 0.10), transparent 28rem),
-            radial-gradient(circle at 88% 12%, rgba(16, 185, 129, 0.08), transparent 24rem),
-            linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
-        color: #0f172a;
+            radial-gradient(ellipse 600px 400px at 15% 10%, rgba(59, 130, 246, 0.08), transparent),
+            radial-gradient(ellipse 500px 350px at 85% 20%, rgba(139, 92, 246, 0.07), transparent),
+            radial-gradient(ellipse 400px 300px at 50% 80%, rgba(16, 185, 129, 0.05), transparent);
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+        background: #0f1117;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: #1e293b;
+        border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: #334155;
     }
 }
 
 @layer components {
+    /* Glass Surface - Dark Glassmorphism */
     .app-surface {
-        background: rgba(255, 255, 255, 0.88);
-        border: 1px solid rgba(226, 232, 240, 0.9);
-        box-shadow: 0 20px 60px rgba(15, 23, 42, 0.06);
-        backdrop-filter: blur(18px);
-        -webkit-backdrop-filter: blur(18px);
+        background: rgba(15, 17, 23, 0.7);
+        border: 1px solid rgba(59, 130, 246, 0.1);
+        box-shadow:
+            0 0 0 1px rgba(59, 130, 246, 0.05),
+            0 20px 60px rgba(0, 0, 0, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
     }
 
     .app-card-hover {
@@ -39,16 +81,39 @@
 
     .app-card-hover:hover {
         transform: translateY(-4px);
-        border-color: rgba(59, 130, 246, 0.24);
-        box-shadow: 0 24px 70px rgba(15, 23, 42, 0.10);
+        border-color: rgba(59, 130, 246, 0.3);
+        box-shadow:
+            0 0 20px rgba(59, 130, 246, 0.1),
+            0 24px 70px rgba(0, 0, 0, 0.4);
     }
 
+    /* Neon Glow Effects */
+    .neon-blue {
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.3), 0 0 30px rgba(59, 130, 246, 0.1);
+    }
+
+    .neon-purple {
+        box-shadow: 0 0 15px rgba(139, 92, 246, 0.3), 0 0 30px rgba(139, 92, 246, 0.1);
+    }
+
+    .neon-emerald {
+        box-shadow: 0 0 15px rgba(16, 185, 129, 0.3), 0 0 30px rgba(16, 185, 129, 0.1);
+    }
+
+    /* Gradient Text */
+    .sv-text-gradient {
+        background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #34d399 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* Orbital Ring Animation */
     .orbital-ring {
         position: absolute;
         inset: auto -4rem -5rem auto;
         width: 16rem;
         height: 16rem;
-        border: 1px solid rgba(255, 255, 255, 0.22);
+        border: 1px solid rgba(59, 130, 246, 0.15);
         border-radius: 9999px;
         animation: orbit-spin 18s linear infinite;
     }
@@ -61,16 +126,18 @@
         width: 0.85rem;
         height: 0.85rem;
         border-radius: 9999px;
-        background: #22c55e;
-        box-shadow: 0 0 26px rgba(34, 197, 94, 0.65);
+        background: #60a5fa;
+        box-shadow: 0 0 26px rgba(96, 165, 250, 0.65);
     }
 
+    /* Scan Lines Effect */
     .scan-lines {
-        background-image: linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
+        background-image: linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px);
         background-size: 100% 12px;
         animation: scan-lines 9s linear infinite;
     }
 
+    /* Alert System */
     .app-alert-backdrop {
         position: fixed;
         inset: 0;
@@ -78,11 +145,11 @@
         display: grid;
         place-items: center;
         padding: 1.25rem;
-        background: rgba(15, 23, 42, 0.34);
+        background: rgba(0, 0, 0, 0.6);
         opacity: 0;
         transition: opacity 180ms ease;
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
     }
 
     .app-alert-backdrop.is-visible {
@@ -96,10 +163,11 @@
     .app-alert {
         width: min(92vw, 28rem);
         border-radius: 1.75rem;
-        background: #ffffff;
+        background: rgba(15, 17, 23, 0.95);
+        border: 1px solid rgba(59, 130, 246, 0.15);
         padding: 1.75rem;
         text-align: center;
-        box-shadow: 0 28px 90px rgba(15, 23, 42, 0.24);
+        box-shadow: 0 28px 90px rgba(0, 0, 0, 0.5), 0 0 40px rgba(59, 130, 246, 0.1);
         transform: translateY(12px) scale(0.97);
         transition: transform 220ms ease;
         overflow: hidden;
@@ -124,12 +192,12 @@
         font-size: 1.35rem;
         line-height: 1.2;
         font-weight: 900;
-        color: #0f172a;
+        color: #f1f5f9;
     }
 
     .app-alert-body {
         margin-top: 0.85rem;
-        color: #64748b;
+        color: #94a3b8;
         font-size: 0.94rem;
         font-weight: 650;
         line-height: 1.65;
@@ -140,13 +208,13 @@
         min-height: 2.85rem;
         border-radius: 0.95rem;
         padding: 0 1.45rem;
-        background: #2563eb;
+        background: linear-gradient(135deg, #3b82f6, #8b5cf6);
         color: #ffffff;
         font-size: 0.76rem;
         font-weight: 900;
         letter-spacing: 0.14em;
         text-transform: uppercase;
-        box-shadow: 0 14px 30px rgba(37, 99, 235, 0.28);
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
     }
 
     .app-alert-progress {
@@ -157,13 +225,13 @@
         height: 0.25rem;
         transform-origin: left;
         animation: alert-progress linear forwards;
-        background: linear-gradient(90deg, #2563eb, #22c55e);
+        background: linear-gradient(90deg, #3b82f6, #8b5cf6, #10b981);
     }
 
-    .app-alert-success .app-alert-icon { background: #ecfdf5; color: #059669; }
-    .app-alert-error .app-alert-icon { background: #fef2f2; color: #dc2626; }
-    .app-alert-warning .app-alert-icon { background: #fffbeb; color: #d97706; }
-    .app-alert-info .app-alert-icon { background: #eff6ff; color: #2563eb; }
+    .app-alert-success .app-alert-icon { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+    .app-alert-error .app-alert-icon { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+    .app-alert-warning .app-alert-icon { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+    .app-alert-info .app-alert-icon { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
 }
 
 @keyframes orbit-spin {

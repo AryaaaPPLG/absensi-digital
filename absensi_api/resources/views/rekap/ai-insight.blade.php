@@ -10,19 +10,22 @@
 
     <style>
         .glass-nav {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
         }
         .text-gradient {
-            background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%);
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #34d399 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
         .bg-gradient-soft {
-            background: radial-gradient(circle at top right, rgba(59, 130, 246, 0.05), transparent),
-                        radial-gradient(circle at bottom left, rgba(37, 99, 235, 0.05), transparent);
+            background:
+                radial-gradient(ellipse 600px 400px at 15% 10%, rgba(59, 130, 246, 0.06), transparent),
+                radial-gradient(ellipse 500px 350px at 85% 20%, rgba(139, 92, 246, 0.05), transparent),
+                radial-gradient(ellipse 400px 300px at 50% 80%, rgba(16, 185, 129, 0.04), transparent);
         }
         .hero-shape {
             position: absolute;
@@ -39,13 +42,14 @@
             100% { transform: translateY(0px); }
         }
         .ai-card {
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(15, 17, 23, 0.7);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(59, 130, 246, 0.1);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 40px rgba(59, 130, 246, 0.05);
         }
         .typing-effect {
             overflow: hidden;
-            border-right: .15em solid orange;
+            border-right: .15em solid #60a5fa;
             white-space: nowrap;
             margin: 0 auto;
             letter-spacing: .15em;
@@ -59,7 +63,7 @@
         }
         @keyframes blink-caret {
           from, to { border-color: transparent }
-          50% { border-color: orange; }
+          50% { border-color: #60a5fa; }
         }
         .loading-pulse {
             animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
@@ -72,17 +76,20 @@
             border-radius: 28px !important;
             padding: 28px !important;
             font-family: 'Plus Jakarta Sans', sans-serif !important;
-            box-shadow: 0 24px 70px rgba(15, 23, 42, 0.18) !important;
+            background: rgba(15, 17, 23, 0.95) !important;
+            border: 1px solid rgba(59, 130, 246, 0.15) !important;
+            box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5), 0 0 40px rgba(59, 130, 246, 0.1) !important;
+            backdrop-filter: blur(20px) !important;
         }
         .swal2-insight-title {
-            color: #0f172a !important;
+            color: #f1f5f9 !important;
             font-size: 1.35rem !important;
             font-weight: 900 !important;
             letter-spacing: -0.01em !important;
         }
         .swal2-insight-html,
         .swal2-insight-popup .swal2-html-container {
-            color: #64748b !important;
+            color: #94a3b8 !important;
             font-size: 0.95rem !important;
             font-weight: 600 !important;
             line-height: 1.6 !important;
@@ -91,27 +98,30 @@
             border-radius: 14px !important;
             padding: 12px 24px !important;
             font-weight: 900 !important;
-            box-shadow: 0 10px 24px rgba(37, 99, 235, 0.28) !important;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6) !important;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3) !important;
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900 font-sans selection:bg-blue-100 selection:text-blue-600 min-h-screen flex flex-col">
+<body class="bg-[#0a0a0f] text-slate-200 font-sans selection:bg-blue-500/20 selection:text-blue-300 min-h-screen flex flex-col relative">
+    <!-- Grid Background -->
+    <div class="fixed inset-0 z-[-2] pointer-events-none" style="background-image: radial-gradient(circle at 1px 1px, rgba(59, 130, 246, 0.06) 1px, transparent 0); background-size: 40px 40px;"></div>
 
     <!-- Navbar -->
     <nav class="fixed top-0 w-full z-50 glass-nav">
         <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <a href="/" class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
                         <i class="fas fa-robot text-white text-xl"></i>
                     </div>
-                    <span class="text-xl font-extrabold tracking-tight text-slate-800">AI<span class="text-blue-600">Insight</span></span>
+                    <span class="text-xl font-extrabold tracking-tight text-slate-200">AI<span class="text-gradient">Insight</span></span>
                 </a>
             </div>
 
             <div class="flex items-center space-x-4">
-                <a href="{{ route('dashboard') }}" class="px-5 py-2.5 text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors">Dashboard</a>
-                <a href="{{ route('rekap.index') }}" class="px-6 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-black uppercase tracking-wider shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all hover:-translate-y-0.5">
+                <a href="{{ route('dashboard') }}" class="px-5 py-2.5 text-sm font-bold text-slate-400 hover:text-blue-400 transition-colors">Dashboard</a>
+                <a href="{{ route('rekap.index') }}" class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl text-sm font-black uppercase tracking-wider shadow-lg shadow-blue-500/10 hover:opacity-90 transition-all hover:-translate-y-0.5">
                     Rekap
                 </a>
             </div>
@@ -120,39 +130,39 @@
 
     <!-- Main Content -->
     <section class="relative pt-40 pb-24 overflow-hidden bg-gradient-soft flex-grow flex items-center">
-        <div class="hero-shape w-96 h-96 bg-blue-400 opacity-20 -top-20 -right-20"></div>
-        <div class="hero-shape w-96 h-96 bg-indigo-400 opacity-20 -bottom-20 -left-20"></div>
+        <div class="hero-shape w-96 h-96 bg-blue-500 opacity-5 -top-20 -right-20"></div>
+        <div class="hero-shape w-96 h-96 bg-purple-500 opacity-5 -bottom-20 -left-20"></div>
 
         <div class="max-w-4xl mx-auto px-6 w-full">
             <!-- Header Section -->
             <div class="mb-12 text-center">
-                <div class="inline-flex items-center px-4 py-2 bg-blue-50 border border-blue-100 rounded-full space-x-2 mb-6 animate-float">
-                    <i class="fas fa-brain text-blue-600 text-xs"></i>
-                    <span class="text-xs font-black text-blue-600 uppercase tracking-widest">Powered by Google Gemini Pro</span>
+                <div class="inline-flex items-center px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full space-x-2 mb-6 animate-float">
+                    <i class="fas fa-brain text-blue-400 text-xs"></i>
+                    <span class="text-xs font-black text-blue-400 uppercase tracking-widest">Powered by Google Gemini Pro</span>
                 </div>
 
-                <h1 class="text-5xl lg:text-6xl font-black text-slate-900 leading-[1.2] tracking-tight mb-4">
+                <h1 class="text-5xl lg:text-6xl font-black text-slate-100 leading-[1.2] tracking-tight mb-4">
                     AI Overlord <span class="text-gradient">Insight</span>
                 </h1>
 
-                <p class="text-lg text-slate-500 font-medium max-w-2xl mx-auto leading-relaxed">
+                <p class="text-lg text-slate-400 font-medium max-w-2xl mx-auto leading-relaxed">
                     Dapatkan analisis mendalam dan ringkasan otomatis terkait kedisiplinan hari ini menggunakan teknologi Artificial Intelligence terbaru.
                 </p>
             </div>
 
             <!-- AI Insight Card -->
-            <div class="ai-card rounded-[2.5rem] shadow-2xl shadow-blue-100 p-8 md:p-12 relative overflow-hidden">
+            <div class="ai-card rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden">
                 <!-- Decorative Elements -->
-                <div class="absolute top-0 right-0 w-32 h-32 bg-blue-600 opacity-[0.03] rounded-bl-full"></div>
+                <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500 opacity-[0.03] rounded-bl-full"></div>
                 
                 <!-- Action Button -->
                 <div class="flex justify-center mb-10">
-                    <button id="generateBtn" class="group relative px-8 py-4 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl shadow-blue-200 hover:bg-blue-700 transition-all hover:-translate-y-1 active:scale-95 overflow-hidden">
+                    <button id="generateBtn" class="group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl shadow-blue-500/10 hover:opacity-90 transition-all hover:-translate-y-1 active:scale-95 overflow-hidden">
                         <span class="relative z-10 flex items-center">
                             <i class="fas fa-magic mr-3 group-hover:rotate-12 transition-transform"></i>
                             Generate Daily Insight
                         </span>
-                        <div class="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 opacity-0 group-hover:opacity-20 transition-opacity"></div>
                     </button>
                 </div>
 
@@ -160,27 +170,27 @@
                 <div id="resultArea" class="hidden">
                     <!-- Stats Grid -->
                     <div class="grid grid-cols-3 gap-4 mb-10">
-                        <div class="bg-blue-50/50 p-6 rounded-3xl border border-blue-100 text-center">
+                        <div class="bg-blue-500/5 p-6 rounded-3xl border border-blue-500/15 text-center">
                             <p class="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-1">Total Hadir</p>
-                            <span id="statTotal" class="text-3xl font-black text-blue-600">0</span>
+                            <span id="statTotal" class="text-3xl font-black text-blue-400">0</span>
                         </div>
-                        <div class="bg-emerald-50/50 p-6 rounded-3xl border border-emerald-100 text-center">
+                        <div class="bg-emerald-500/5 p-6 rounded-3xl border border-emerald-500/15 text-center">
                             <p class="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-1">Tepat Waktu</p>
-                            <span id="statHadir" class="text-3xl font-black text-emerald-600">0</span>
+                            <span id="statHadir" class="text-3xl font-black text-emerald-400">0</span>
                         </div>
-                        <div class="bg-amber-50/50 p-6 rounded-3xl border border-amber-100 text-center">
+                        <div class="bg-amber-500/5 p-6 rounded-3xl border border-amber-500/15 text-center">
                             <p class="text-[10px] font-black text-amber-400 uppercase tracking-widest mb-1">Terlambat</p>
-                            <span id="statTerlambat" class="text-3xl font-black text-amber-600">0</span>
+                            <span id="statTerlambat" class="text-3xl font-black text-amber-400">0</span>
                         </div>
                     </div>
 
                     <!-- AI Text Content -->
                     <div class="prose prose-slate prose-lg max-w-none">
                         <div class="flex items-start space-x-4">
-                            <div class="w-12 h-12 bg-blue-100 rounded-2xl flex-shrink-0 flex items-center justify-center">
-                                <i class="fas fa-comment-dots text-blue-600 text-xl"></i>
+                            <div class="w-12 h-12 bg-blue-500/10 rounded-2xl flex-shrink-0 flex items-center justify-center border border-blue-500/20">
+                                <i class="fas fa-comment-dots text-blue-400 text-xl"></i>
                             </div>
-                            <div id="aiSummary" class="text-slate-700 font-medium leading-relaxed italic">
+                            <div id="aiSummary" class="text-slate-300 font-medium leading-relaxed italic">
                                 <!-- AI text will appear here -->
                             </div>
                         </div>
@@ -190,29 +200,29 @@
                 <!-- Loading State -->
                 <div id="loadingState" class="hidden py-12 text-center">
                     <div class="inline-block relative">
-                        <div class="w-20 h-20 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin"></div>
+                        <div class="w-20 h-20 border-4 border-blue-500/20 border-t-blue-400 rounded-full animate-spin"></div>
                         <div class="absolute inset-0 flex items-center justify-center">
-                            <i class="fas fa-brain text-blue-600 text-xl loading-pulse"></i>
+                            <i class="fas fa-brain text-blue-400 text-xl loading-pulse"></i>
                         </div>
                     </div>
-                    <p class="mt-6 text-sm font-black text-slate-400 uppercase tracking-[0.3em]">AI is thinking...</p>
+                    <p class="mt-6 text-sm font-black text-slate-500 uppercase tracking-[0.3em]">AI is thinking...</p>
                 </div>
 
                 <!-- Initial State -->
                 <div id="initialState" class="py-12 text-center">
-                    <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <i class="fas fa-sparkles text-slate-300 text-3xl"></i>
+                    <div class="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/5">
+                        <i class="fas fa-sparkles text-slate-600 text-3xl"></i>
                     </div>
-                    <p class="text-slate-400 font-medium">Klik tombol di atas untuk menganalisis data absensi hari ini.</p>
+                    <p class="text-slate-500 font-medium">Klik tombol di atas untuk menganalisis data absensi hari ini.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Footer Simple -->
-    <footer class="py-12 bg-white border-t border-slate-100 mt-auto">
+    <!-- Footer -->
+    <footer class="py-12 bg-black/40 border-t border-white/5 mt-auto">
         <div class="max-w-7xl mx-auto px-6 text-center">
-            <p class="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">
+            <p class="text-xs font-black text-slate-600 uppercase tracking-[0.2em]">
                 &copy; 2026 Absensi Digital RFID. Built for excellence.
             </p>
         </div>
@@ -231,7 +241,7 @@
         const InsightAlert = {
             fire(options) {
                 return window.Swal.fire({
-                    confirmButtonColor: '#2563eb',
+                    confirmButtonColor: '#3b82f6',
                     buttonsStyling: true,
                     customClass: {
                         popup: 'swal2-insight-popup',
@@ -245,7 +255,6 @@
         };
 
         generateBtn.addEventListener('click', async () => {
-            // Show loading
             generateBtn.disabled = true;
             generateBtn.classList.add('opacity-50', 'cursor-not-allowed');
             initialState.classList.add('hidden');
@@ -264,16 +273,13 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    // Update content
                     statTotal.textContent = data.data.stats.total;
                     statHadir.textContent = data.data.stats.hadir;
                     statTerlambat.textContent = data.data.stats.terlambat;
                     
-                    // Format AI text with line breaks
                     const formattedText = data.data.summary.replace(/\n/g, '<br>');
                     aiSummary.innerHTML = formattedText;
 
-                    // Show result
                     loadingState.classList.add('hidden');
                     resultArea.classList.remove('hidden');
                 } else {
